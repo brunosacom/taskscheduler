@@ -59,6 +59,8 @@ String eepromReadStr(int eepromBlock)
 //BMBS IPconfig presence variables
 int variavelCFGpos = 1;
 String variavelCFG = "";
+int variavelTSKpos;
+String variavelTSK = "";
 
 //BMBS IP Address from EEPROM
 byte variavelIP1 = EEPROM.read(51);
@@ -102,6 +104,7 @@ String HttpHeader = String(MaxHeaderLength);
 
 //BMBS declare HTTP string variables from form
 String HttpHeaderCFG;
+String HttpHeaderTSK;
 
 String HttpHeaderIP1;
 String HttpHeaderIP2;
@@ -127,6 +130,7 @@ String HttpHeaderY0;
 
 //BMBS declare HTTP byte variables to write in EEPROM
 byte HttpHeaderCFGbyte;
+byte HttpHeaderTSKbyte;
 
 byte HttpHeaderIP1byte;
 byte HttpHeaderIP2byte;
@@ -148,8 +152,26 @@ byte HttpHeaderDN2byte;
 byte HttpHeaderDN3byte;
 byte HttpHeaderDN4byte;
 
+byte HttpHeaderTAbyte;
+byte HttpHeaderY0byte;
+byte HttpHeaderYEbyte;
+byte HttpHeaderMObyte;
+byte HttpHeaderDAbyte;
+byte HttpHeaderHObyte;
+byte HttpHeaderMIbyte;
+byte HttpHeaderSEbyte;
+byte HttpHeaderSTSbyte;
+byte HttpHeaderSUNbyte;
+byte HttpHeaderMONbyte;
+byte HttpHeaderTUEbyte;
+byte HttpHeaderWEDbyte;
+byte HttpHeaderTHUbyte;
+byte HttpHeaderFRIbyte;
+byte HttpHeaderSATbyte;
+
 //BMBS declare NTP byte variables to write in EEPROM
-byte year0 = EEPROM.read(100);
+const String n0 = "0";
+const byte year0 = EEPROM.read(100);
 
 byte task01 = EEPROM.read(111);
 byte sts01 = EEPROM.read(112);
@@ -204,17 +226,30 @@ String thursday02;
 String friday02;
 String saturday02;
 
+//BMBS function datetime pre n0
+ String twoDigits (byte fieldA)
+ {
+    String twoDigitsStr = "";
+
+    if (fieldA < 10){
+      twoDigitsStr = n0 + fieldA;
+      } else {
+      twoDigitsStr = fieldA;
+      }
+    return twoDigitsStr;
+ }
+
 //BMBS function HTTP GET byte from form
-byte HttpHeaderValue(String fieldA, String fieldB)
+byte HttpHeaderValue(String fieldA)
 {
   String HttpHeaderVAL;
   byte HttpHeaderVALbyte;
   HttpHeaderVAL = HttpHeader;
-  HttpHeaderVAL.remove(HttpHeader.indexOf(fieldA) - 1, HttpHeader.length() - HttpHeader.indexOf(fieldA));
-  HttpHeaderVAL.remove(0, HttpHeader.indexOf(fieldB) + 3);
+  HttpHeaderVAL.remove(0, HttpHeaderVAL.indexOf(fieldA) + fieldA.length());
+  HttpHeaderVAL.remove(HttpHeaderVAL.indexOf("&"), HttpHeaderVAL.length() - HttpHeaderVAL.indexOf("&") + 1);
   HttpHeaderVALbyte = HttpHeaderVAL.toInt();
   return HttpHeaderVALbyte;
-};
+}
 
 //BMBS function dayOfWeek and Status HTMLcode
 String dayOfWeekValue(byte dow){
@@ -284,6 +319,33 @@ void setup()
 
 void loop()
 {
+  String taskSchedule01Str = ((String)EEPROM.read(100) + twoDigits(EEPROM.read(113)) + "-" + twoDigits(EEPROM.read(114)) + "-" + twoDigits(EEPROM.read(115)) + " " + twoDigits(EEPROM.read(116)) + ":" + twoDigits(EEPROM.read(117)) + ":" + twoDigits(EEPROM.read(118)));
+
+  
+
+  if (variavelTSKpos > 0){
+    EEPROM.read(variavelTSKpos + 1);
+            EEPROM.read(variavelTSKpos + 2);
+            EEPROM.read(variavelTSKpos + 3);
+            EEPROM.read(variavelTSKpos + 4);
+            EEPROM.read(variavelTSKpos + 5);
+            EEPROM.read(variavelTSKpos + 6);
+            EEPROM.read(variavelTSKpos + 7);
+            EEPROM.read(variavelTSKpos + 8);
+
+            EEPROM.read(variavelTSKpos + 11);
+            EEPROM.read(variavelTSKpos + 12);
+            EEPROM.read(variavelTSKpos + 13);
+            EEPROM.read(variavelTSKpos + 14);
+            EEPROM.read(variavelTSKpos + 15);
+            EEPROM.read(variavelTSKpos + 16);
+            EEPROM.read(variavelTSKpos + 17);
+
+            taskSchedule01Str = ((String)EEPROM.read(100) + EEPROM.read(113) + "-" + EEPROM.read(114) + "-" + EEPROM.read(115) + " " + EEPROM.read(116) + ":" + EEPROM.read(117) + ":" + EEPROM.read(118));
+            
+    //variavelTSKpos = 0;
+  }
+  
   // Create a client connection
   EthernetClient client = server.available();
   if (client)
@@ -310,25 +372,47 @@ void loop()
           HttpHeaderCFG.remove(0, HttpHeader.indexOf("CF=") + 3);
           HttpHeaderCFGbyte = HttpHeaderCFG[0];
 
-          HttpHeaderIP1byte = HttpHeaderValue("I2=", "I1=");
-          HttpHeaderIP2byte = HttpHeaderValue("I3=", "I2=");
-          HttpHeaderIP3byte = HttpHeaderValue("I4=", "I3=");
-          HttpHeaderIP4byte = HttpHeaderValue("S1=", "I4=");
+          HttpHeaderTSK = HttpHeader;
+          HttpHeaderTSK.remove(HttpHeader.indexOf("TA=") - 1, HttpHeader.length() - HttpHeader.indexOf("TA="));
+          HttpHeaderTSK.remove(0, HttpHeader.indexOf("TS=") + 3);
+          HttpHeaderTSKbyte = HttpHeaderTSK[0];
 
-          HttpHeaderSB1byte = HttpHeaderValue("S2=", "S1=");
-          HttpHeaderSB2byte = HttpHeaderValue("S3=", "S2=");
-          HttpHeaderSB3byte = HttpHeaderValue("S4=", "S3=");
-          HttpHeaderSB4byte = HttpHeaderValue("G1=", "S4=");
+          HttpHeaderIP1byte = HttpHeaderValue("I1=");
+          HttpHeaderIP2byte = HttpHeaderValue("I2=");
+          HttpHeaderIP3byte = HttpHeaderValue("I3=");
+          HttpHeaderIP4byte = HttpHeaderValue("I4=");
 
-          HttpHeaderGW1byte = HttpHeaderValue("G2=", "G1=");
-          HttpHeaderGW2byte = HttpHeaderValue("G3=", "G2=");
-          HttpHeaderGW3byte = HttpHeaderValue("G4=", "G3=");
-          HttpHeaderGW4byte = HttpHeaderValue("D1=", "G4=");
+          HttpHeaderSB1byte = HttpHeaderValue("S1=");
+          HttpHeaderSB2byte = HttpHeaderValue("S2=");
+          HttpHeaderSB3byte = HttpHeaderValue("S3=");
+          HttpHeaderSB4byte = HttpHeaderValue("S4=");
 
-          HttpHeaderDN1byte = HttpHeaderValue("D2=", "D1=");
-          HttpHeaderDN2byte = HttpHeaderValue("D3=", "D2=");
-          HttpHeaderDN3byte = HttpHeaderValue("D4=", "D3=");
-          HttpHeaderDN4byte = HttpHeaderValue("HTT", "D4=");
+          HttpHeaderGW1byte = HttpHeaderValue("G1=");
+          HttpHeaderGW2byte = HttpHeaderValue("G2=");
+          HttpHeaderGW3byte = HttpHeaderValue("G3=");
+          HttpHeaderGW4byte = HttpHeaderValue("G4=");
+
+          HttpHeaderDN1byte = HttpHeaderValue("D1=");
+          HttpHeaderDN2byte = HttpHeaderValue("D2=");
+          HttpHeaderDN3byte = HttpHeaderValue("D3=");
+          HttpHeaderDN4byte = HttpHeaderValue("D4=");
+
+          HttpHeaderTAbyte = HttpHeaderValue("TA=");
+          HttpHeaderY0byte = HttpHeaderValue("Y0=");
+          HttpHeaderYEbyte = HttpHeaderValue("YE=");
+          HttpHeaderMObyte = HttpHeaderValue("MO=");
+          HttpHeaderDAbyte = HttpHeaderValue("DA=");
+          HttpHeaderHObyte = HttpHeaderValue("HO=");
+          HttpHeaderMIbyte = HttpHeaderValue("MI=");
+          HttpHeaderSEbyte = HttpHeaderValue("SE=");
+          HttpHeaderSTSbyte = HttpHeaderValue("sts=");
+          HttpHeaderSUNbyte = HttpHeaderValue("sun=");
+          HttpHeaderMONbyte = HttpHeaderValue("mon=");
+          HttpHeaderTUEbyte = HttpHeaderValue("tue=");
+          HttpHeaderWEDbyte = HttpHeaderValue("wed=");
+          HttpHeaderTHUbyte = HttpHeaderValue("thu=");
+          HttpHeaderFRIbyte = HttpHeaderValue("fri=");
+          HttpHeaderSATbyte = HttpHeaderValue("sat=");
 
           status01 = statusValue(sts01);
           sunday01 = dayOfWeekValue(sun01);
@@ -352,6 +436,12 @@ void loop()
           Serial.println(HttpHeader.length());
           Serial.print("HttpHeader: ");
           Serial.println(HttpHeader);
+          Serial.print("HttpHeaderTSK: ");
+          Serial.println(HttpHeaderTSK);
+          Serial.print("month01: ");
+          Serial.println(month01);
+          Serial.print("taskSchedule01Str: ");
+          Serial.println(taskSchedule01Str);
           Serial.print("HttpHeader[0]: ");
           Serial.println(HttpHeader[0]);
           Serial.print("HttpHeader[1]: ");
@@ -364,6 +454,38 @@ void loop()
           Serial.println(HttpHeader[4]);
           Serial.print("HttpHeader[5]: ");
           Serial.println(HttpHeader[5]);
+          Serial.print("HttpHeaderTA: ");
+          Serial.println(HttpHeaderTAbyte);
+          Serial.print("HttpHeaderHO: ");
+          Serial.println(HttpHeaderHObyte);
+          Serial.print("HttpHeaderMI: ");
+          Serial.println(HttpHeaderMIbyte);
+          Serial.print("HttpHeaderSE: ");
+          Serial.println(HttpHeaderSEbyte);
+          Serial.print("HttpHeaderY0: ");
+          Serial.println(HttpHeaderY0byte);
+          Serial.print("HttpHeaderYE: ");
+          Serial.println(HttpHeaderYEbyte);
+          Serial.print("HttpHeaderMO: ");
+          Serial.println(HttpHeaderMObyte);
+          Serial.print("HttpHeaderDA: ");
+          Serial.println(HttpHeaderDAbyte);
+          Serial.print("HttpHeaderSTS: ");
+          Serial.println(HttpHeaderSTSbyte);
+          Serial.print("HttpHeaderSUN: ");
+          Serial.println(HttpHeaderSUNbyte);
+          Serial.print("HttpHeaderMON: ");
+          Serial.println(HttpHeaderMONbyte);
+          Serial.print("HttpHeaderTUE: ");
+          Serial.println(HttpHeaderTUEbyte);
+          Serial.print("HttpHeaderWED: ");
+          Serial.println(HttpHeaderWEDbyte);
+          Serial.print("HttpHeaderTHU: ");
+          Serial.println(HttpHeaderTHUbyte);
+          Serial.print("HttpHeaderFRI: ");
+          Serial.println(HttpHeaderFRIbyte);
+          Serial.print("HttpHeaderSAT: ");
+          Serial.println(HttpHeaderSATbyte);
 
           //BMBS web page's header
           client.println(F("HTTP/1.1 200 OK"));
@@ -487,8 +609,6 @@ void loop()
             client.println(F("<title>Task Scheduler</title>"));
             client.println(F("</head>"));
             client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>Task Scheduler</strong></h2>"));
-            client.println(F("<h5>Edit Task</h5>"));
-
             client.println(F("<div class='row my-2 bg-secondary'>"));
             client.println(F("<div class='col-1'><strong>task</strong></div>"));
             client.println(F("<div class='col-2'><strong>time</strong></div>"));
@@ -498,8 +618,9 @@ void loop()
             client.println(F("</div>"));
             client.println(F("<div class='row my-2'>"));
             client.println((String)"<div class='col-1'>" + task01 + "</div>");
-            client.println((String)"<div class='col-2'>" + hour01 + ":" + min01 + ":" + sec01 + "</div>");
-            client.println((String)"<div class='col-2'>" + year0 + year01 + "-" + month01 + "-" + day01 + "</div>");
+            client.println((String)"<div class='col-2'>" + taskSchedule01Str + "</div><div class='col-2'></div>");
+            //client.println((String)"<div class='col-2'>" + hour01 + ":" + min01 + ":" + sec01 + "</div>");
+            //client.println((String)"<div class='col-2'>" + year0 + year01 + "-" + month01 + "-" + day01 + "</div>");
             client.println("<div class='col-6'>");
             client.println("    <div class='row'>");
             client.println("        <div class='col" + sunday01 + "'> S </div>");
@@ -530,8 +651,7 @@ void loop()
             client.println("</div>");
             client.println("<div class='col-1" + status02 + "</div>");
             client.println("</div><br><br>");
-
-            
+            client.println(F("<h5>Edit Task</h5>"));           
             client.println("<form><input type='hidden' name='TS' value='BMB_tsksch'><input type='hidden' name='Y0' value='20'>");
             client.println("  <div class='row my-2 bg-secondary'>");
             client.println("      <div class='col-4'>task</div>");
@@ -547,7 +667,7 @@ void loop()
             client.println("      </div>");
             client.println("      <div class='col'>");
             client.println("          <div class='custom-control custom-switch'>");
-            client.println("              <input type='checkbox' class='custom-control-input' id='OO' name='OO' value='1'><label class='custom-control-label' for='OO'></label>");
+            client.println("              <input type='checkbox' class='custom-control-input' id='sts' name='sts' value='1'><label class='custom-control-label' for='sts'></label>");
             client.println("          </div>");
             client.println("      </div>");
             client.println("  </div>");
@@ -562,32 +682,32 @@ void loop()
             client.println("      <div class='col-6 text-wrap'>");
             client.println("          <div class='row'>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='su' name='su' value='1'>");
-            client.println("                  <label class='custom-control-label' for='su'>S</label>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='sun' name='sun' value='1'>");
+            client.println("                  <label class='custom-control-label' for='sun'>S</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='mo' name='mo' value='1'>");
-            client.println("                  <label class='custom-control-label' for='mo'>M</label>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='mon' name='mon' value='1'>");
+            client.println("                  <label class='custom-control-label' for='mon'>M</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='tu' name='tu' value='1'>");
-            client.println("                  <label class='custom-control-label' for='tu'>T</label>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='tue' name='tue' value='1'>");
+            client.println("                  <label class='custom-control-label' for='tue'>T</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='we' name='we' value='1'>");
-            client.println("                  <label class='custom-control-label' for='we'>W</label>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='wed' name='wed' value='1'>");
+            client.println("                  <label class='custom-control-label' for='wed'>W</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='th' name='th' value='1'>");
-            client.println("                  <label class='custom-control-label' for='th'>T</label>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='thu' name='thu' value='1'>");
+            client.println("                  <label class='custom-control-label' for='thu'>T</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='fr' name='fr' value='1'>");
-            client.println("                  <label class='custom-control-label' for='fr'>F</label>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='fri' name='fri' value='1'>");
+            client.println("                  <label class='custom-control-label' for='fri'>F</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='sa' name='sa' value='1'>");
-            client.println("                  <label class='custom-control-label' for='sa'>S</label>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='sat' name='sat' value='1'>");
+            client.println("                  <label class='custom-control-label' for='sat'>S</label>");
             client.println("              </div>");
             client.println("          </div>");
             client.println("      </div>");
@@ -642,6 +762,72 @@ void loop()
             EEPROM.write(69, HttpHeaderDN4byte);
             HttpHeaderCFG = "";
             resetFunc();
+          };
+
+
+          //BMBS checking previous Task Schedule to overwrite
+          if (HttpHeaderTSK[0] == 66 && HttpHeaderTSK[1] == 77 && HttpHeaderTSK[2] == 66 && HttpHeaderTSK[3] == 95 && HttpHeaderTSK[4] == 116 && HttpHeaderTSK[5] == 115 && HttpHeaderTSK[6] == 107 && HttpHeaderTSK[7] == 115 && HttpHeaderTSK[8] == 99 && HttpHeaderTSK[9] == 104)
+          {
+            int HttpHeaderTAint = HttpHeaderTAbyte;
+            
+            switch (HttpHeaderTAint) {
+              case 1:
+                variavelTSKpos = 110;
+                break;
+              case 2:
+                variavelTSKpos = 130;
+                break;
+              case 3:
+                variavelTSKpos = 150;
+                break;
+              case 4:
+                variavelTSKpos = 170;
+                break;
+              case 5:
+                variavelTSKpos = 190;
+                break;
+              case 6:
+                variavelTSKpos = 210;
+                break;
+              case 7:
+                variavelTSKpos = 230;
+                break;
+              case 8:
+                variavelTSKpos = 250;
+                break;
+              case 9:
+                variavelTSKpos = 270;
+                break;
+              case 10:
+                variavelTSKpos = 290;
+                break;
+              default:
+                // if nothing else matches, do the default
+                // default is optional
+                break;
+            }
+
+            
+            EEPROM.write(variavelTSKpos + 1, HttpHeaderTAbyte);
+            EEPROM.write(variavelTSKpos + 2, HttpHeaderSTSbyte);
+            EEPROM.write(variavelTSKpos + 3, HttpHeaderYEbyte);
+            EEPROM.write(variavelTSKpos + 4, HttpHeaderMObyte);
+            EEPROM.write(variavelTSKpos + 5, HttpHeaderDAbyte);
+            EEPROM.write(variavelTSKpos + 6, HttpHeaderHObyte);
+            EEPROM.write(variavelTSKpos + 7, HttpHeaderMIbyte);
+            EEPROM.write(variavelTSKpos + 8, HttpHeaderSEbyte);
+
+            EEPROM.write(variavelTSKpos + 11, HttpHeaderSUNbyte);
+            EEPROM.write(variavelTSKpos + 12, HttpHeaderMONbyte);
+            EEPROM.write(variavelTSKpos + 13, HttpHeaderTUEbyte);
+            EEPROM.write(variavelTSKpos + 14, HttpHeaderWEDbyte);
+            EEPROM.write(variavelTSKpos + 15, HttpHeaderTHUbyte);
+            EEPROM.write(variavelTSKpos + 16, HttpHeaderFRIbyte);
+            EEPROM.write(variavelTSKpos + 17, HttpHeaderSATbyte);
+
+            //variavelTSKpos = 0;
+            HttpHeaderTSK = "";
+            //resetFunc();
           };
 
           //clearing string for next read
