@@ -173,58 +173,58 @@ byte HttpHeaderSATbyte;
 const String n0 = "0";
 const byte year0 = EEPROM.read(100);
 
+String taskScheduleComplete (int nTask){
+  return ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)) + " " + twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
+};
+
+String taskScheduleDisplay (int nTask){
+  String date = ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)));
+  String time = ((String) twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
+  String dateTime = date + " " + time;
+  if (EEPROM.read(100 + nTask * 20) == 8){
+    return time;
+  }
+
+  return dateTime;
+};
+
+String daysOfWeekComplete (int nTask){
+  return ((String) EEPROM.read(100 + nTask * 20) + EEPROM.read(101 + nTask * 20) + EEPROM.read(102 + nTask * 20) + EEPROM.read(103 + nTask * 20) + EEPROM.read(104 + nTask * 20) + EEPROM.read(105 + nTask * 20) + EEPROM.read(106 + nTask * 20) + EEPROM.read(107 + nTask * 20));
+};
+
+String taskSchedule01Str = "";
+String taskSchedule02Str = "";
+String taskSchedule03Str = "";
+
+String taskSchedule01Display = "";
+String taskSchedule02Display = "";
+String taskSchedule03Display = "";
+
+String daysOfWeek01Str = "";
+String daysOfWeek02Str = "";
+String daysOfWeek03Str = "";
+
 byte task01 = EEPROM.read(111);
-byte sts01 = EEPROM.read(112);
-byte year01 = EEPROM.read(113);
-byte month01 = EEPROM.read(114);
-byte day01 = EEPROM.read(115);
-byte hour01 = EEPROM.read(116);
-byte min01 = EEPROM.read(117);
-byte sec01 = EEPROM.read(118);
 
-byte week01 = EEPROM.read(120);
-byte sun01 = EEPROM.read(121);
-byte mon01 = EEPROM.read(122);
-byte tue01 = EEPROM.read(123);
-byte wed01 = EEPROM.read(124);
-byte thu01 = EEPROM.read(125);
-byte fri01 = EEPROM.read(126);
-byte sat01 = EEPROM.read(127);
-
-String status01;
-String sunday01;
-String monday01;
-String tuesday01;
-String wednesday01;
-String thursday01;
-String friday01;
-String saturday01;
+String sts01;
+String sun01;
+String mon01;
+String tue01;
+String wed01;
+String thu01;
+String fri01;
+String sat01;
 
 byte task02 = EEPROM.read(131);
-byte sts02 = EEPROM.read(132);
-byte year02 = EEPROM.read(133);
-byte month02 = EEPROM.read(134);
-byte day02 = EEPROM.read(135);
-byte hour02 = EEPROM.read(136);
-byte min02 = EEPROM.read(137);
-byte sec02 = EEPROM.read(138);
-byte week02 = EEPROM.read(140);
-byte sun02 = EEPROM.read(141);
-byte mon02 = EEPROM.read(142);
-byte tue02 = EEPROM.read(143);
-byte wed02 = EEPROM.read(144);
-byte thu02 = EEPROM.read(145);
-byte fri02 = EEPROM.read(146);
-byte sat02 = EEPROM.read(147);
 
-String status02;
-String sunday02;
-String monday02;
-String tuesday02;
-String wednesday02;
-String thursday02;
-String friday02;
-String saturday02;
+String sts02;
+String sun02;
+String mon02;
+String tue02;
+String wed02;
+String thu02;
+String fri02;
+String sat02;
 
 //BMBS function datetime pre n0
  String twoDigits (byte fieldA)
@@ -237,7 +237,7 @@ String saturday02;
       twoDigitsStr = fieldA;
       }
     return twoDigitsStr;
- }
+ };
 
 //BMBS function HTTP GET byte from form
 byte HttpHeaderValue(String fieldA)
@@ -249,12 +249,12 @@ byte HttpHeaderValue(String fieldA)
   HttpHeaderVAL.remove(HttpHeaderVAL.indexOf("&"), HttpHeaderVAL.length() - HttpHeaderVAL.indexOf("&") + 1);
   HttpHeaderVALbyte = HttpHeaderVAL.toInt();
   return HttpHeaderVALbyte;
-}
+};
 
 //BMBS function dayOfWeek and Status HTMLcode
 String dayOfWeekValue(byte dow){
   String dayOfWeekVAL;
-  if (dow == 0){
+  if (dow == 48){
     dayOfWeekVAL = " text-muted";
   }
   return dayOfWeekVAL;
@@ -271,7 +271,7 @@ String statusValue(byte sts){
 };
 
 
-//BMBS repeating HTML codes
+//BMBS /ipcfg repeating HTML codes
 String divRow = "<div class='form-row my-2'><div class='col-md-3 col-xs-12 text-nowrap'>";
 String divClassInput0 = "<div class='col-2'><input class='form-control form-control-sm' type='number' size='3' max='255' name='";
 String divClassInput1 = "' value='";
@@ -319,32 +319,18 @@ void setup()
 
 void loop()
 {
-  String taskSchedule01Str = ((String)EEPROM.read(100) + twoDigits(EEPROM.read(113)) + "-" + twoDigits(EEPROM.read(114)) + "-" + twoDigits(EEPROM.read(115)) + " " + twoDigits(EEPROM.read(116)) + ":" + twoDigits(EEPROM.read(117)) + ":" + twoDigits(EEPROM.read(118)));
-
   
+  taskSchedule01Str = taskScheduleComplete(task01);
+  taskSchedule02Str = taskScheduleComplete(task02);
+  taskSchedule03Str = taskScheduleComplete(3);
 
-  if (variavelTSKpos > 0){
-    EEPROM.read(variavelTSKpos + 1);
-            EEPROM.read(variavelTSKpos + 2);
-            EEPROM.read(variavelTSKpos + 3);
-            EEPROM.read(variavelTSKpos + 4);
-            EEPROM.read(variavelTSKpos + 5);
-            EEPROM.read(variavelTSKpos + 6);
-            EEPROM.read(variavelTSKpos + 7);
-            EEPROM.read(variavelTSKpos + 8);
+  taskSchedule01Display = taskScheduleDisplay(task01);
+  taskSchedule02Display = taskScheduleDisplay(task02);
+  taskSchedule03Display = taskScheduleDisplay(3);
 
-            EEPROM.read(variavelTSKpos + 11);
-            EEPROM.read(variavelTSKpos + 12);
-            EEPROM.read(variavelTSKpos + 13);
-            EEPROM.read(variavelTSKpos + 14);
-            EEPROM.read(variavelTSKpos + 15);
-            EEPROM.read(variavelTSKpos + 16);
-            EEPROM.read(variavelTSKpos + 17);
-
-            taskSchedule01Str = ((String)EEPROM.read(100) + EEPROM.read(113) + "-" + EEPROM.read(114) + "-" + EEPROM.read(115) + " " + EEPROM.read(116) + ":" + EEPROM.read(117) + ":" + EEPROM.read(118));
-            
-    //variavelTSKpos = 0;
-  }
+  daysOfWeek01Str = daysOfWeekComplete(task01);
+  daysOfWeek02Str = daysOfWeekComplete(task02);
+  daysOfWeek03Str = daysOfWeekComplete(3);
   
   // Create a client connection
   EthernetClient client = server.available();
@@ -414,23 +400,23 @@ void loop()
           HttpHeaderFRIbyte = HttpHeaderValue("fri=");
           HttpHeaderSATbyte = HttpHeaderValue("sat=");
 
-          status01 = statusValue(sts01);
-          sunday01 = dayOfWeekValue(sun01);
-          monday01 = dayOfWeekValue(mon01);
-          tuesday01 = dayOfWeekValue(tue01);
-          wednesday01 = dayOfWeekValue(wed01);
-          thursday01 = dayOfWeekValue(thu01);
-          friday01 = dayOfWeekValue(fri01);
-          saturday01 = dayOfWeekValue(sat01);
+          sts01 = statusValue(EEPROM.read(112));
+          sun01 = dayOfWeekValue(daysOfWeek01Str[1]);
+          mon01 = dayOfWeekValue(daysOfWeek01Str[2]);
+          tue01 = dayOfWeekValue(daysOfWeek01Str[3]);
+          wed01 = dayOfWeekValue(daysOfWeek01Str[4]);
+          thu01 = dayOfWeekValue(daysOfWeek01Str[5]);
+          fri01 = dayOfWeekValue(daysOfWeek01Str[6]);
+          sat01 = dayOfWeekValue(daysOfWeek01Str[7]);
 
-          status02 = statusValue(sts02);
-          sunday02 = dayOfWeekValue(sun02);
-          monday02 = dayOfWeekValue(mon02);
-          tuesday02 = dayOfWeekValue(tue02);
-          wednesday02 = dayOfWeekValue(wed02);
-          thursday02 = dayOfWeekValue(thu02);
-          friday02 = dayOfWeekValue(fri02);
-          saturday02 = dayOfWeekValue(sat02);
+          sts02 = statusValue(EEPROM.read(132));
+          sun02 = dayOfWeekValue(daysOfWeek02Str[1]);
+          mon02 = dayOfWeekValue(daysOfWeek02Str[2]);
+          tue02 = dayOfWeekValue(daysOfWeek02Str[3]);
+          wed02 = dayOfWeekValue(daysOfWeek02Str[4]);
+          thu02 = dayOfWeekValue(daysOfWeek02Str[5]);
+          fri02 = dayOfWeekValue(daysOfWeek02Str[6]);
+          sat02 = dayOfWeekValue(daysOfWeek02Str[7]);
 
           Serial.print("Length: ");
           Serial.println(HttpHeader.length());
@@ -438,54 +424,30 @@ void loop()
           Serial.println(HttpHeader);
           Serial.print("HttpHeaderTSK: ");
           Serial.println(HttpHeaderTSK);
-          Serial.print("month01: ");
-          Serial.println(month01);
           Serial.print("taskSchedule01Str: ");
           Serial.println(taskSchedule01Str);
-          Serial.print("HttpHeader[0]: ");
-          Serial.println(HttpHeader[0]);
-          Serial.print("HttpHeader[1]: ");
-          Serial.println(HttpHeader[1]);
-          Serial.print("HttpHeader[2]: ");
-          Serial.println(HttpHeader[2]);
-          Serial.print("HttpHeader[3]: ");
-          Serial.println(HttpHeader[3]);
-          Serial.print("HttpHeader[4]: ");
-          Serial.println(HttpHeader[4]);
-          Serial.print("HttpHeader[5]: ");
-          Serial.println(HttpHeader[5]);
-          Serial.print("HttpHeaderTA: ");
-          Serial.println(HttpHeaderTAbyte);
-          Serial.print("HttpHeaderHO: ");
-          Serial.println(HttpHeaderHObyte);
-          Serial.print("HttpHeaderMI: ");
-          Serial.println(HttpHeaderMIbyte);
-          Serial.print("HttpHeaderSE: ");
-          Serial.println(HttpHeaderSEbyte);
-          Serial.print("HttpHeaderY0: ");
-          Serial.println(HttpHeaderY0byte);
-          Serial.print("HttpHeaderYE: ");
-          Serial.println(HttpHeaderYEbyte);
-          Serial.print("HttpHeaderMO: ");
-          Serial.println(HttpHeaderMObyte);
-          Serial.print("HttpHeaderDA: ");
-          Serial.println(HttpHeaderDAbyte);
-          Serial.print("HttpHeaderSTS: ");
-          Serial.println(HttpHeaderSTSbyte);
-          Serial.print("HttpHeaderSUN: ");
-          Serial.println(HttpHeaderSUNbyte);
-          Serial.print("HttpHeaderMON: ");
-          Serial.println(HttpHeaderMONbyte);
-          Serial.print("HttpHeaderTUE: ");
-          Serial.println(HttpHeaderTUEbyte);
-          Serial.print("HttpHeaderWED: ");
-          Serial.println(HttpHeaderWEDbyte);
-          Serial.print("HttpHeaderTHU: ");
-          Serial.println(HttpHeaderTHUbyte);
-          Serial.print("HttpHeaderFRI: ");
-          Serial.println(HttpHeaderFRIbyte);
-          Serial.print("HttpHeaderSAT: ");
-          Serial.println(HttpHeaderSATbyte);
+          Serial.print("taskSchedule02Str: ");
+          Serial.println(taskSchedule02Str);
+          Serial.print("taskSchedule03Str: ");
+          Serial.println(taskSchedule03Str);
+          Serial.print("taskSchedule01Display: ");
+          Serial.println(taskSchedule01Display);
+          Serial.print("taskSchedule02Display: ");
+          Serial.println(taskSchedule02Display);
+          Serial.print("taskSchedule03Display: ");
+          Serial.println(taskSchedule03Display);
+          Serial.print("daysOfWeek01Str: ");
+          Serial.println(daysOfWeek01Str);
+          Serial.print("daysOfWeek02Str: ");
+          Serial.println(daysOfWeek02Str);
+          Serial.print("daysOfWeek03Str: ");
+          Serial.println(daysOfWeek03Str);
+          Serial.print("daysOfWeek01Str[5]: ");
+          Serial.println(daysOfWeek01Str[5]);
+          Serial.print("daysOfWeek02Str[1]: ");
+          Serial.println(daysOfWeek02Str[1]);
+          Serial.print("daysOfWeek03Str[4]: ");
+          Serial.println(daysOfWeek03Str[4]);
 
           //BMBS web page's header
           client.println(F("HTTP/1.1 200 OK"));
@@ -611,45 +573,41 @@ void loop()
             client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>Task Scheduler</strong></h2>"));
             client.println(F("<div class='row my-2 bg-secondary'>"));
             client.println(F("<div class='col-1'><strong>task</strong></div>"));
-            client.println(F("<div class='col-2'><strong>time</strong></div>"));
-            client.println(F("<div class='col-2'><strong>date</strong></div>"));
+            client.println(F("<div class='col-4'><strong>timestamp</strong></div>"));
             client.println(F("<div class='col-6'><strong>day of week</strong></div>"));
             client.println(F("<div class='col-1'><strong>status</strong></div>"));
             client.println(F("</div>"));
             client.println(F("<div class='row my-2'>"));
             client.println((String)"<div class='col-1'>" + task01 + "</div>");
-            client.println((String)"<div class='col-2'>" + taskSchedule01Str + "</div><div class='col-2'></div>");
-            //client.println((String)"<div class='col-2'>" + hour01 + ":" + min01 + ":" + sec01 + "</div>");
-            //client.println((String)"<div class='col-2'>" + year0 + year01 + "-" + month01 + "-" + day01 + "</div>");
+            client.println((String)"<div class='col-4'>" + taskSchedule01Display + "</div>");
             client.println("<div class='col-6'>");
             client.println("    <div class='row'>");
-            client.println("        <div class='col" + sunday01 + "'> S </div>");
-            client.println("        <div class='col" + monday01 + "'> M </div>");
-            client.println("        <div class='col" + tuesday01 + "'>T</div>");
-            client.println("        <div class='col" + wednesday01 + "'>W</div>");
-            client.println("        <div class='col" + thursday01 + "'>T</div>");
-            client.println("        <div class='col" + friday01 + "'>F</div>");
-            client.println("        <div class='col" + saturday01 + "'>S</div>");
+            client.println("        <div class='col" + sun01 + "'>S</div>");
+            client.println("        <div class='col" + mon01 + "'>M</div>");
+            client.println("        <div class='col" + tue01 + "'>T</div>");
+            client.println("        <div class='col" + wed01 + "'>W</div>");
+            client.println("        <div class='col" + thu01 + "'>T</div>");
+            client.println("        <div class='col" + fri01 + "'>F</div>");
+            client.println("        <div class='col" + sat01 + "'>S</div>");
             client.println("    </div>");
             client.println("</div>");
-            client.println("<div class='col-1" + status01 + "</div>");
+            client.println("<div class='col-1" + sts01 + "</div>");
             client.println("</div>");
              client.println(F("<div class='row my-2'>"));
             client.println((String)"<div class='col-1'>" + task02 + "</div>");
-            client.println((String)"<div class='col-2'>" + hour02 + ":" + min02 + ":" + sec02 + "</div>");
-            client.println((String)"<div class='col-2'>" + year0 + year02 + "-" + month02 + "-" + day02 + "</div>");
+            client.println((String)"<div class='col-4'>" + taskSchedule02Display + "</div>");
             client.println("<div class='col-6'>");
             client.println("    <div class='row'>");
-            client.println("        <div class='col" + sunday02 + "'> S </div>");
-            client.println("        <div class='col" + monday02 + "'> M </div>");
-            client.println("        <div class='col" + tuesday02 + "'>T</div>");
-            client.println("        <div class='col" + wednesday02 + "'>W</div>");
-            client.println("        <div class='col" + thursday02 + "'>T</div>");
-            client.println("        <div class='col" + friday02 + "'>F</div>");
-            client.println("        <div class='col" + saturday02 + "'>S</div>");
+            client.println("        <div class='col" + sun02 + "'>S</div>");
+            client.println("        <div class='col" + mon02 + "'>M</div>");
+            client.println("        <div class='col" + tue02 + "'>T</div>");
+            client.println("        <div class='col" + wed02 + "'>W</div>");
+            client.println("        <div class='col" + thu02 + "'>T</div>");
+            client.println("        <div class='col" + fri02 + "'>F</div>");
+            client.println("        <div class='col" + sat02 + "'>S</div>");
             client.println("    </div>");
             client.println("</div>");
-            client.println("<div class='col-1" + status02 + "</div>");
+            client.println("<div class='col-1" + sts02 + "</div>");
             client.println("</div><br><br>");
             client.println(F("<h5>Edit Task</h5>"));           
             client.println("<form><input type='hidden' name='TS' value='BMB_tsksch'><input type='hidden' name='Y0' value='20'>");
@@ -667,7 +625,7 @@ void loop()
             client.println("      </div>");
             client.println("      <div class='col'>");
             client.println("          <div class='custom-control custom-switch'>");
-            client.println("              <input type='checkbox' class='custom-control-input' id='sts' name='sts' value='1'><label class='custom-control-label' for='sts'></label>");
+            client.println("              <input type='checkbox' class='custom-control-input' id='sts' name='sts' value='9'><label class='custom-control-label' for='sts'></label>");
             client.println("          </div>");
             client.println("      </div>");
             client.println("  </div>");
@@ -686,27 +644,27 @@ void loop()
             client.println("                  <label class='custom-control-label' for='sun'>S</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='mon' name='mon' value='1'>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='mon' name='mon' value='2'>");
             client.println("                  <label class='custom-control-label' for='mon'>M</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='tue' name='tue' value='1'>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='tue' name='tue' value='3'>");
             client.println("                  <label class='custom-control-label' for='tue'>T</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='wed' name='wed' value='1'>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='wed' name='wed' value='4'>");
             client.println("                  <label class='custom-control-label' for='wed'>W</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='thu' name='thu' value='1'>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='thu' name='thu' value='5'>");
             client.println("                  <label class='custom-control-label' for='thu'>T</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='fri' name='fri' value='1'>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='fri' name='fri' value='6'>");
             client.println("                  <label class='custom-control-label' for='fri'>F</label>");
             client.println("              </div>");
             client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='sat' name='sat' value='1'>");
+            client.println("                  <input type='checkbox' class='custom-control-input' id='sat' name='sat' value='7'>");
             client.println("                  <label class='custom-control-label' for='sat'>S</label>");
             client.println("              </div>");
             client.println("          </div>");
@@ -770,62 +728,29 @@ void loop()
           {
             int HttpHeaderTAint = HttpHeaderTAbyte;
             
-            switch (HttpHeaderTAint) {
-              case 1:
-                variavelTSKpos = 110;
-                break;
-              case 2:
-                variavelTSKpos = 130;
-                break;
-              case 3:
-                variavelTSKpos = 150;
-                break;
-              case 4:
-                variavelTSKpos = 170;
-                break;
-              case 5:
-                variavelTSKpos = 190;
-                break;
-              case 6:
-                variavelTSKpos = 210;
-                break;
-              case 7:
-                variavelTSKpos = 230;
-                break;
-              case 8:
-                variavelTSKpos = 250;
-                break;
-              case 9:
-                variavelTSKpos = 270;
-                break;
-              case 10:
-                variavelTSKpos = 290;
-                break;
-              default:
-                // if nothing else matches, do the default
-                // default is optional
-                break;
+            EEPROM.write(91 + HttpHeaderTAint * 20, HttpHeaderTAbyte);
+            EEPROM.write(92 + HttpHeaderTAint * 20, HttpHeaderSTSbyte);
+            EEPROM.write(93 + HttpHeaderTAint * 20, HttpHeaderYEbyte);
+            EEPROM.write(94 + HttpHeaderTAint * 20, HttpHeaderMObyte);
+            EEPROM.write(95 + HttpHeaderTAint * 20, HttpHeaderDAbyte);
+            EEPROM.write(96 + HttpHeaderTAint * 20, HttpHeaderHObyte);
+            EEPROM.write(97 + HttpHeaderTAint * 20, HttpHeaderMIbyte);
+            EEPROM.write(98 + HttpHeaderTAint * 20, HttpHeaderSEbyte);
+
+            if (HttpHeaderSUNbyte == 0 && HttpHeaderMONbyte == 0 && HttpHeaderTUEbyte == 0 && HttpHeaderWEDbyte == 0 && HttpHeaderTHUbyte == 0 && HttpHeaderFRIbyte == 0 && HttpHeaderSATbyte == 0){
+              EEPROM.write(100 + HttpHeaderTAint * 20, 0);
+            } else {
+              EEPROM.write(100 + HttpHeaderTAint * 20, 8);
             }
 
-            
-            EEPROM.write(variavelTSKpos + 1, HttpHeaderTAbyte);
-            EEPROM.write(variavelTSKpos + 2, HttpHeaderSTSbyte);
-            EEPROM.write(variavelTSKpos + 3, HttpHeaderYEbyte);
-            EEPROM.write(variavelTSKpos + 4, HttpHeaderMObyte);
-            EEPROM.write(variavelTSKpos + 5, HttpHeaderDAbyte);
-            EEPROM.write(variavelTSKpos + 6, HttpHeaderHObyte);
-            EEPROM.write(variavelTSKpos + 7, HttpHeaderMIbyte);
-            EEPROM.write(variavelTSKpos + 8, HttpHeaderSEbyte);
+            EEPROM.write(101 + HttpHeaderTAint * 20, HttpHeaderSUNbyte);
+            EEPROM.write(102 + HttpHeaderTAint * 20, HttpHeaderMONbyte);
+            EEPROM.write(103 + HttpHeaderTAint * 20, HttpHeaderTUEbyte);
+            EEPROM.write(104 + HttpHeaderTAint * 20, HttpHeaderWEDbyte);
+            EEPROM.write(105 + HttpHeaderTAint * 20, HttpHeaderTHUbyte);
+            EEPROM.write(106 + HttpHeaderTAint * 20, HttpHeaderFRIbyte);
+            EEPROM.write(107 + HttpHeaderTAint * 20, HttpHeaderSATbyte);
 
-            EEPROM.write(variavelTSKpos + 11, HttpHeaderSUNbyte);
-            EEPROM.write(variavelTSKpos + 12, HttpHeaderMONbyte);
-            EEPROM.write(variavelTSKpos + 13, HttpHeaderTUEbyte);
-            EEPROM.write(variavelTSKpos + 14, HttpHeaderWEDbyte);
-            EEPROM.write(variavelTSKpos + 15, HttpHeaderTHUbyte);
-            EEPROM.write(variavelTSKpos + 16, HttpHeaderFRIbyte);
-            EEPROM.write(variavelTSKpos + 17, HttpHeaderSATbyte);
-
-            //variavelTSKpos = 0;
             HttpHeaderTSK = "";
             //resetFunc();
           };
