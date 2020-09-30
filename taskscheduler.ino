@@ -1,9 +1,10 @@
 /* BMBS - Bruno Sá - www.bruno-sa.com */
 
+
 #include <ezTime.h>
-#include <SPI.h>
 #include <Ethernet.h>
 #include <EEPROM.h>
+#include <SPI.h>
 
 #define MaxHeaderLength 255 //maximum length of http header required
 
@@ -178,14 +179,14 @@ String taskScheduleComplete (int nTask){
 };
 
 String taskScheduleDisplay (int nTask){
-  String date = ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)));
-  String time = ((String) twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
-  String dateTime = date + " " + time;
+  String tskDate = ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)));
+  String tskTime = ((String) twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
+  String tskDateTime = tskDate + " " + tskTime;
   if (EEPROM.read(100 + nTask * 20) == 8){
-    return time;
+    return tskTime;
   }
 
-  return dateTime;
+  return tskDateTime;
 };
 
 String daysOfWeekComplete (int nTask){
@@ -280,6 +281,7 @@ String divClassInput2 = "'></div>.";
 void setup()
 {
   variavelCFG = eepromReadStr(variavelCFGpos);
+  //variavelCFG = ((String)char(EEPROM.read(1)) + char(EEPROM.read(2)) + char(EEPROM.read(3)) + char(EEPROM.read(4)) + char(EEPROM.read(5)) + char(EEPROM.read(6)) + char(EEPROM.read(7)) + char(EEPROM.read(8)) + char(EEPROM.read(9)) + char(EEPROM.read(10))); 
 
   //BMBS check previous BMBIPCONFIG
   if (variavelCFG == "BMB_ipconf")
@@ -304,14 +306,27 @@ void setup()
   else
   {
     eepromWriteStr(variavelCFGpos, "BMB_ipconf");
-  }
-
-  ;
-  //start Ethernet
-  Ethernet.begin(mac, ip, dns, gateway, subnet);
+    /*EEPROM.write(1, 66);
+    EEPROM.write(2, 77);
+    EEPROM.write(3, 66);
+    EEPROM.write(4, 95);
+    EEPROM.write(5, 105);
+    EEPROM.write(6, 112);
+    EEPROM.write(7, 99);
+    EEPROM.write(8, 111);
+    EEPROM.write(9, 110);
+    EEPROM.write(10, 102);*/
+  };
 
   //enable serial monitor
   Serial.begin(9600);
+  //while (!Serial) { ; }
+
+  //start Ethernet
+  Ethernet.begin(mac, ip, dns, gateway, subnet);
+
+  Serial.println(Ethernet.localIP());
+          Serial.println(Ethernet.dnsServerIP());
 
   //initialize variable
   HttpHeader = "";
@@ -320,6 +335,9 @@ void setup()
 void loop()
 {
   
+  Timezone Bembos;
+  Bembos.setPosix("3:00");
+
   taskSchedule01Str = taskScheduleComplete(task01);
   taskSchedule02Str = taskScheduleComplete(task02);
   taskSchedule03Str = taskScheduleComplete(3);
@@ -418,6 +436,12 @@ void loop()
           fri02 = dayOfWeekValue(daysOfWeek02Str[6]);
           sat02 = dayOfWeekValue(daysOfWeek02Str[7]);
 
+          Serial.println(Ethernet.localIP());
+          Serial.println(Ethernet.dnsServerIP());
+          Serial.println("UTC: " + UTC.dateTime());
+          Serial.println("BEMBOS: " + Bembos.dateTime("Y-m-d H:i:s.v"));
+          Serial.print("variavelCFG: ");
+          Serial.println(variavelCFG);
           Serial.print("Length: ");
           Serial.println(HttpHeader.length());
           Serial.print("HttpHeader: ");
