@@ -4,7 +4,7 @@
 #include <ezTime.h>
 #include <Ethernet.h>
 #include <EEPROM.h>
-#include <SPI.h>
+//#include <SPI.h>
 
 #define MaxHeaderLength 255 //maximum length of http header required
 
@@ -19,73 +19,10 @@
 //reset function
 void (*resetFunc)(void) = 0; //declare reset function at address 0
 
-// function write string byte after byte in EEPROM
-void eepromWriteStr(int eepromBlock, String text)
-{
-  int i;
-
-  for (i = 0; i < text.length(); i++)
-  {
-    EEPROM.write(eepromBlock + i, text.charAt(i));
-
-    if (i >= 1000)
-    {
-      break;
-    }
-  }
-
-  if (i < 1000)
-  {
-    EEPROM.write(eepromBlock + i, (char)0);
-  }
-}
-
-// function read string byte after byte from EEPROM
-String eepromReadStr(int eepromBlock)
-{
-  String readStr = "";
-  char readByte;
-  int readEepromBlock = eepromBlock;
-
-  do
-  {
-    readByte = EEPROM.read(readEepromBlock);
-    readStr += readByte;
-    readEepromBlock++;
-  } while ((readByte != (char)0) && (readEepromBlock < (eepromBlock + 1000)));
-
-  return readStr;
-}
-
 //BMBS IPconfig presence variables
-int variavelCFGpos = 1;
 String variavelCFG = "";
 int variavelTSKpos;
 String variavelTSK = "";
-
-//BMBS IP Address from EEPROM
-byte variavelIP1 = EEPROM.read(51);
-byte variavelIP2 = EEPROM.read(52);
-byte variavelIP3 = EEPROM.read(53);
-byte variavelIP4 = EEPROM.read(54);
-
-//BMBS Subnet Mask from EEPROM
-byte variavelSB1 = EEPROM.read(56);
-byte variavelSB2 = EEPROM.read(57);
-byte variavelSB3 = EEPROM.read(58);
-byte variavelSB4 = EEPROM.read(59);
-
-//BMBS Gateway from EEPROM
-byte variavelGW1 = EEPROM.read(61);
-byte variavelGW2 = EEPROM.read(62);
-byte variavelGW3 = EEPROM.read(63);
-byte variavelGW4 = EEPROM.read(64);
-
-//BMBS DNS from EEPROM
-byte variavelDN1 = EEPROM.read(66);
-byte variavelDN2 = EEPROM.read(67);
-byte variavelDN3 = EEPROM.read(68);
-byte variavelDN4 = EEPROM.read(69);
 
 // IP config defaults
 byte mac[] = {
@@ -172,7 +109,8 @@ byte HttpHeaderSATbyte;
 
 //BMBS declare NTP byte variables to write in EEPROM
 const String n0 = "0";
-const byte year0 = EEPROM.read(100);
+const byte year0 = 20;
+//const byte year0 = EEPROM.read(100);
 
 String taskScheduleComplete (int nTask){
   return ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)) + " " + twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
@@ -280,8 +218,7 @@ String divClassInput2 = "'></div>.";
 
 void setup()
 {
-  variavelCFG = eepromReadStr(variavelCFGpos);
-  //variavelCFG = ((String)char(EEPROM.read(1)) + char(EEPROM.read(2)) + char(EEPROM.read(3)) + char(EEPROM.read(4)) + char(EEPROM.read(5)) + char(EEPROM.read(6)) + char(EEPROM.read(7)) + char(EEPROM.read(8)) + char(EEPROM.read(9)) + char(EEPROM.read(10))); 
+  variavelCFG = ((String)char(EEPROM.read(1)) + char(EEPROM.read(2)) + char(EEPROM.read(3)) + char(EEPROM.read(4)) + char(EEPROM.read(5)) + char(EEPROM.read(6)) + char(EEPROM.read(7)) + char(EEPROM.read(8)) + char(EEPROM.read(9)) + char(EEPROM.read(10))); 
 
   //BMBS check previous BMBIPCONFIG
   if (variavelCFG == "BMB_ipconf")
@@ -302,31 +239,20 @@ void setup()
     {
       dns[i] = EEPROM.read(i + 66);
     }
-  }
-  else
-  {
-    eepromWriteStr(variavelCFGpos, "BMB_ipconf");
-    /*EEPROM.write(1, 66);
-    EEPROM.write(2, 77);
-    EEPROM.write(3, 66);
-    EEPROM.write(4, 95);
-    EEPROM.write(5, 105);
-    EEPROM.write(6, 112);
-    EEPROM.write(7, 99);
-    EEPROM.write(8, 111);
-    EEPROM.write(9, 110);
-    EEPROM.write(10, 102);*/
   };
 
   //enable serial monitor
   Serial.begin(9600);
   //while (!Serial) { ; }
+  //Serial.println();
 
   //start Ethernet
   Ethernet.begin(mac, ip, dns, gateway, subnet);
 
+  
+
   Serial.println(Ethernet.localIP());
-          Serial.println(Ethernet.dnsServerIP());
+  Serial.println(Ethernet.dnsServerIP());
 
   //initialize variable
   HttpHeader = "";
@@ -334,9 +260,9 @@ void setup()
 
 void loop()
 {
-  
-  Timezone Bembos;
-  Bembos.setPosix("3:00");
+  //events();
+  //Timezone Bembos;
+  //Bembos.setPosix("3:00");
 
   taskSchedule01Str = taskScheduleComplete(task01);
   taskSchedule02Str = taskScheduleComplete(task02);
@@ -438,8 +364,8 @@ void loop()
 
           Serial.println(Ethernet.localIP());
           Serial.println(Ethernet.dnsServerIP());
-          Serial.println("UTC: " + UTC.dateTime());
-          Serial.println("BEMBOS: " + Bembos.dateTime("Y-m-d H:i:s.v"));
+          //Serial.println("UTC: " + UTC.dateTime());
+          //Serial.println("BEMBOS: " + Bembos.dateTime("Y-m-d H:i:s.v"));
           Serial.print("variavelCFG: ");
           Serial.println(variavelCFG);
           Serial.print("Length: ");
@@ -723,6 +649,17 @@ void loop()
           //BMBS checking previous IP config to overwrite
           if (HttpHeaderCFG[0] == 66 && HttpHeaderCFG[1] == 77 && HttpHeaderCFG[2] == 66 && HttpHeaderCFG[3] == 95 && HttpHeaderCFG[4] == 105 && HttpHeaderCFG[5] == 112 && HttpHeaderCFG[6] == 99 && HttpHeaderCFG[7] == 111 && HttpHeaderCFG[8] == 110 && HttpHeaderCFG[9] == 102)
           {
+            EEPROM.write(1, 66);
+            EEPROM.write(2, 77);
+            EEPROM.write(3, 66);
+            EEPROM.write(4, 95);
+            EEPROM.write(5, 105);
+            EEPROM.write(6, 112);
+            EEPROM.write(7, 99);
+            EEPROM.write(8, 111);
+            EEPROM.write(9, 110);
+            EEPROM.write(10, 102);
+
             EEPROM.write(51, HttpHeaderIP1byte);
             EEPROM.write(52, HttpHeaderIP2byte);
             EEPROM.write(53, HttpHeaderIP3byte);
@@ -776,7 +713,7 @@ void loop()
             EEPROM.write(107 + HttpHeaderTAint * 20, HttpHeaderSATbyte);
 
             HttpHeaderTSK = "";
-            //resetFunc();
+            resetFunc();
           };
 
           //clearing string for next read
