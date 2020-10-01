@@ -1,10 +1,9 @@
 /* BMBS - Bruno Sá - www.bruno-sa.com */
 
-
-#include <ezTime.h>
+#include <TimeLib.h>
 #include <Ethernet.h>
+#include <EthernetUdp.h>
 #include <EEPROM.h>
-//#include <SPI.h>
 
 #define MaxHeaderLength 255 //maximum length of http header required
 
@@ -43,6 +42,7 @@ String HttpHeader = String(MaxHeaderLength);
 //BMBS declare HTTP string variables from form
 String HttpHeaderCFG;
 String HttpHeaderTSK;
+String HttpHeaderNTP;
 
 String HttpHeaderIP1;
 String HttpHeaderIP2;
@@ -69,6 +69,7 @@ String HttpHeaderY0;
 //BMBS declare HTTP byte variables to write in EEPROM
 byte HttpHeaderCFGbyte;
 byte HttpHeaderTSKbyte;
+byte HttpHeaderNTPbyte;
 
 byte HttpHeaderIP1byte;
 byte HttpHeaderIP2byte;
@@ -106,6 +107,14 @@ byte HttpHeaderWEDbyte;
 byte HttpHeaderTHUbyte;
 byte HttpHeaderFRIbyte;
 byte HttpHeaderSATbyte;
+
+byte HttpHeaderNT1byte;
+byte HttpHeaderNT2byte;
+byte HttpHeaderNT3byte;
+byte HttpHeaderNT4byte;
+
+byte HttpHeaderTZ1byte;
+byte HttpHeaderTZ2byte;
 
 //BMBS declare NTP byte variables to write in EEPROM
 const String n0 = "0";
@@ -215,6 +224,17 @@ String divRow = "<div class='form-row my-2'><div class='col-md-3 col-xs-12 text-
 String divClassInput0 = "<div class='col-2'><input class='form-control form-control-sm' type='number' size='3' max='255' name='";
 String divClassInput1 = "' value='";
 String divClassInput2 = "'></div>.";
+String formSelected = " selected";
+
+//BMBS NTP and timezone infos in EEPROM
+byte ntpip[] = {EEPROM.read(21), EEPROM.read(22), EEPROM.read(23), EEPROM.read(24)}; // default NTP server address
+byte tz[] = {EEPROM.read(26), EEPROM.read(27)};
+
+//BMBS time library configs
+IPAddress timeServer(ntpip[0], ntpip[1], ntpip[2], ntpip[3]); // 201.49.148.135 = b.st1.ntp.br
+int timeZone = 0;     // default UTC
+EthernetUDP Udp;
+unsigned int localPort = 8888;  // local port to listen for UDP packets
 
 void setup()
 {
@@ -241,28 +261,42 @@ void setup()
     }
   };
 
+  //BMBS timezone info
+  if (tz[0] == 45) {
+    timeZone = -1 * tz[1];
+    formSelected = "";
+  } else {
+    timeZone = 1 * tz[1];
+  };
+
   //enable serial monitor
   Serial.begin(9600);
-  //while (!Serial) { ; }
-  //Serial.println();
 
   //start Ethernet
   Ethernet.begin(mac, ip, dns, gateway, subnet);
 
-  
-
-  Serial.println(Ethernet.localIP());
-  Serial.println(Ethernet.dnsServerIP());
+  //BMBS time library configs
+  Udp.begin(localPort);
+  Serial.println("waiting for sync");
+  setSyncProvider(getNtpTime);
 
   //initialize variable
   HttpHeader = "";
 }
 
+//BMBS time library configs
+time_t prevDisplay = 0; // when the digital clock was displayed
+
+
 void loop()
 {
-  //events();
-  //Timezone Bembos;
-  //Bembos.setPosix("3:00");
+
+  if (timeStatus() != timeNotSet) {
+    if (now() != prevDisplay) { //update the display only if time has changed
+      prevDisplay = now();
+      digitalClockDisplay();  
+    }
+  }
 
   taskSchedule01Str = taskScheduleComplete(task01);
   taskSchedule02Str = taskScheduleComplete(task02);
@@ -307,6 +341,11 @@ void loop()
           HttpHeaderTSK.remove(0, HttpHeader.indexOf("TS=") + 3);
           HttpHeaderTSKbyte = HttpHeaderTSK[0];
 
+          HttpHeaderNTP = HttpHeader;
+          HttpHeaderNTP.remove(HttpHeader.indexOf("N1=") - 1, HttpHeader.length() - HttpHeader.indexOf("TA="));
+          HttpHeaderNTP.remove(0, HttpHeader.indexOf("TZ=") + 3);
+          HttpHeaderNTPbyte = HttpHeaderNTP[0];
+
           HttpHeaderIP1byte = HttpHeaderValue("I1=");
           HttpHeaderIP2byte = HttpHeaderValue("I2=");
           HttpHeaderIP3byte = HttpHeaderValue("I3=");
@@ -344,6 +383,14 @@ void loop()
           HttpHeaderFRIbyte = HttpHeaderValue("fri=");
           HttpHeaderSATbyte = HttpHeaderValue("sat=");
 
+          HttpHeaderNT1byte = HttpHeaderValue("N1=");
+          HttpHeaderNT2byte = HttpHeaderValue("N2=");
+          HttpHeaderNT3byte = HttpHeaderValue("N3=");
+          HttpHeaderNT4byte = HttpHeaderValue("N4=");
+
+          HttpHeaderTZ1byte = HttpHeaderValue("T1=");
+          HttpHeaderTZ2byte = HttpHeaderValue("T2=");
+
           sts01 = statusValue(EEPROM.read(112));
           sun01 = dayOfWeekValue(daysOfWeek01Str[1]);
           mon01 = dayOfWeekValue(daysOfWeek01Str[2]);
@@ -364,8 +411,6 @@ void loop()
 
           Serial.println(Ethernet.localIP());
           Serial.println(Ethernet.dnsServerIP());
-          //Serial.println("UTC: " + UTC.dateTime());
-          //Serial.println("BEMBOS: " + Bembos.dateTime("Y-m-d H:i:s.v"));
           Serial.print("variavelCFG: ");
           Serial.println(variavelCFG);
           Serial.print("Length: ");
@@ -380,6 +425,10 @@ void loop()
           Serial.println(taskSchedule02Str);
           Serial.print("taskSchedule03Str: ");
           Serial.println(taskSchedule03Str);
+          Serial.print("tz[0]: ");
+          Serial.println(tz[0]);
+          Serial.print("tz[1]: ");
+          Serial.println(tz[1]);
           Serial.print("taskSchedule01Display: ");
           Serial.println(taskSchedule01Display);
           Serial.print("taskSchedule02Display: ");
@@ -627,6 +676,49 @@ void loop()
             client.println("</form><br>");
           }
 
+          //BMBS internal page: /ntpzn
+          //character conversion in https://www.arduino.cc/en/Reference/ASCIIchart
+          else if (HttpHeader[5] == 110 && HttpHeader[6] == 116 && HttpHeader[7] == 112 && HttpHeader[8] == 122 && HttpHeader[9] == 110)
+          {
+            client.println(F("<title>NTP & TimeZone</title>"));
+            client.println(F("</head>"));
+            client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>NTP & TimeZone</strong></h2>"));
+            client.println(F("<form><input type='hidden' name='TZ' value='BMB_timezn'>"));
+            client.print(divRow);
+            client.print(F("NTP IP Address: </div>"));
+            client.print(divClassInput0);
+            client.print(F("N1"));
+            client.print(divClassInput1);
+            client.print(ntpip[0]);
+            client.print(divClassInput2);
+            client.print(divClassInput0);
+            client.print(F("N2"));
+            client.print(divClassInput1);
+            client.print(ntpip[1]);
+            client.print(divClassInput2);
+            client.print(divClassInput0);
+            client.print(F("N3"));
+            client.print(divClassInput1);
+            client.print(ntpip[2]);
+            client.print(divClassInput2);
+            client.print(divClassInput0);
+            client.print(F("N4"));
+            client.print(divClassInput1);
+            client.print(ntpip[3]);
+            client.println(F("'></div></div>"));
+            client.print(divRow);
+            client.print(F("TimeZone: </div>"));
+            client.print(F("<div class='col-1'><select class='form-control form-control-sm'  name='T1'><option value='45'>-</option><option value='43'"));
+            client.print(formSelected);
+            client.print(F(">+</option></select></div>"));
+            client.print(divClassInput0);
+            client.print(F("T2"));
+            client.print(divClassInput1);
+            client.print(tz[1]);
+            client.println(F("'></div></div>"));
+            client.println(F("<div class='form-row my-2'><input class='btn btn-warning btn-sm' type='submit' value='submit'></div></form>"));
+          }
+
           //BMBS default internal page: /
           else
           {
@@ -635,7 +727,7 @@ void loop()
             client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>Home Page</strong></h2>"));
           }
           //BMBS web page's footer
-          client.println(F("<div class='row justify-content-center'><div><a href='/'>home</a> | <a href='/ipcfg'>IP config</a> | <a href='/schdl'>task scheduler</a></div></div>"));
+          client.println(F("<div class='row justify-content-center'><div><a href='/'>home</a> | <a href='/ipcfg'>IP config</a> | <a href='/ntpzn'>NTP & TimeZone</a> | <a href='/schdl'>task scheduler</a></div></div>"));
           client.println(F("</div>"));
           client.println(F("<!-- Optional JavaScript -->"));
           client.println(F("<!-- jQuery first, then Popper.js, then Bootstrap JS -->"));
@@ -679,6 +771,7 @@ void loop()
             EEPROM.write(67, HttpHeaderDN2byte);
             EEPROM.write(68, HttpHeaderDN3byte);
             EEPROM.write(69, HttpHeaderDN4byte);
+
             HttpHeaderCFG = "";
             resetFunc();
           };
@@ -716,6 +809,21 @@ void loop()
             resetFunc();
           };
 
+          //BMBS checking previous NTP TimeZone to overwrite
+          if (HttpHeaderNTP[0] == 66 && HttpHeaderNTP[1] == 77 && HttpHeaderNTP[2] == 66 && HttpHeaderNTP[3] == 95 && HttpHeaderNTP[4] == 116 && HttpHeaderNTP[5] == 105 && HttpHeaderNTP[6] == 109 && HttpHeaderNTP[7] == 101 && HttpHeaderNTP[8] == 122 && HttpHeaderNTP[9] == 110)
+          {
+            EEPROM.write(21, HttpHeaderNT1byte);
+            EEPROM.write(22, HttpHeaderNT2byte);
+            EEPROM.write(23, HttpHeaderNT3byte);
+            EEPROM.write(24, HttpHeaderNT4byte);
+
+            EEPROM.write(26, HttpHeaderTZ1byte);
+            EEPROM.write(27, HttpHeaderTZ2byte);
+
+            HttpHeaderNTP = "";
+            resetFunc();
+          };
+
           //clearing string for next read
           HttpHeader = "";
 
@@ -725,4 +833,82 @@ void loop()
       }
     }
   }
+}
+
+//BMBS time library configs
+void digitalClockDisplay(){
+  // digital clock display of the time
+  Serial.print(year()); 
+  Serial.print("-");
+  Serial.print(month());
+  Serial.print("-");
+  Serial.print(day());
+  Serial.print(" ");
+  Serial.print(hour());
+  printDigits(minute());
+  printDigits(second());
+  Serial.print(" ");
+  Serial.print(weekday());
+  Serial.println(); 
+}
+
+//BMBS time library configs
+void printDigits(int digits){
+  // utility for digital clock display: prints preceding colon and leading 0
+  Serial.print(":");
+  if(digits < 10)
+    Serial.print('0');
+  Serial.print(digits);
+}
+
+//BMBS time library configs
+/*-------- NTP code ----------*/
+const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
+byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
+
+time_t getNtpTime()
+{
+  while (Udp.parsePacket() > 0) ; // discard any previously received packets
+  Serial.println("Transmit NTP Request");
+  sendNTPpacket(timeServer);
+  uint32_t beginWait = millis();
+  while (millis() - beginWait < 1500) {
+    int size = Udp.parsePacket();
+    if (size >= NTP_PACKET_SIZE) {
+      Serial.println("Receive NTP Response");
+      Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+      unsigned long secsSince1900;
+      // convert four bytes starting at location 40 to a long integer
+      secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+      secsSince1900 |= (unsigned long)packetBuffer[43];
+      return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+    }
+  }
+  Serial.println("No NTP Response :-(");
+  return 0; // return 0 if unable to get the time
+}
+
+// send an NTP request to the time server at the given address
+void sendNTPpacket(IPAddress &address)
+{
+  // set all bytes in the buffer to 0
+  memset(packetBuffer, 0, NTP_PACKET_SIZE);
+  // Initialize values needed to form NTP request
+  // (see URL above for details on the packets)
+  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+  packetBuffer[1] = 0;     // Stratum, or type of clock
+  packetBuffer[2] = 6;     // Polling Interval
+  packetBuffer[3] = 0xEC;  // Peer Clock Precision
+  // 8 bytes of zero for Root Delay & Root Dispersion
+  packetBuffer[12]  = 49;
+  packetBuffer[13]  = 0x4E;
+  packetBuffer[14]  = 49;
+  packetBuffer[15]  = 52;
+  // all NTP fields have been given values, now
+  // you can send a packet requesting a timestamp:                 
+  Udp.beginPacket(address, 123); //NTP requests are to port 123
+  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+  Udp.endPacket();
 }
