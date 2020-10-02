@@ -1,0 +1,55 @@
+EEPROM Address Map
+
+address                 content
+1                       initial String "B" (byte = 66)
+2                       initial String "M" (byte = 66)
+3                       initial String "B" (byte = 66)
+4                       initial String "_" (byte = 66)
+5                       initial String "i" (byte = 66)
+6                       initial String "p" (byte = 66)
+7                       initial String "c" (byte = 66)
+8                       initial String "o" (byte = 66)
+9                       initial String "n" (byte = 66)
+10                      initial String "f" (byte = 66)
+
+21                      NTP Server IP block 1 (byte = ntpip[0])
+22                      NTP Server IP block 2 (byte = ntpip[1])
+23                      NTP Server IP block 3 (byte = ntpip[2])
+24                      NTP Server IP block 4 (byte = ntpip[3])
+
+26                      TimeZone + or - (byte = 43 or 45)
+27                      TimeZone number (byte 0 to 12)
+
+51                      IP address block 1 (byte = ip[0])
+52                      IP address block 2 (byte = ip[1])
+53                      IP address block 3 (byte = ip[2])
+54                      IP address block 4 (byte = ip[3])
+56                      Subnet Mask subnet[0]
+57                      Subnet Mask subnet[1]
+58                      Subnet Mask subnet[2]
+59                      Subnet Mask subnet[3]
+61                      Gateway gateway[0]
+62                      Gateway gateway[1]
+63                      Gateway gateway[2]
+64                      Gateway gateway[3]
+66                      DNS dns[0]
+67                      DNS dns[1]
+68                      DNS dns[2]
+69                      DNS dns[3]
+
+111
+112
+113
+114
+115
+116
+117
+118
+120
+121
+122
+123
+124
+125
+126
+127
