@@ -18,6 +18,32 @@
 //reset function
 void (*resetFunc)(void) = 0; //declare reset function at address 0
 
+//task action
+void pinVoltage(byte pin, byte voltage){
+switch (voltage) {
+  case 72:
+    digitalWrite(pin, HIGH);
+    break;
+  case 76:
+    digitalWrite(pin, LOW);
+    break;
+  case 104:
+    digitalWrite(pin, HIGH);
+    delay(500);
+    digitalWrite(pin, LOW);
+    break;
+  case 108:
+    digitalWrite(pin, LOW);
+    delay(500);
+    digitalWrite(pin, HIGH);
+    break;
+  default:
+    // if nothing else matches, do the default
+    // default is optional
+    break;
+  }
+};
+
 //BMBS IPconfig presence variables
 String variavelCFG = "";
 int variavelTSKpos;
@@ -99,6 +125,8 @@ byte HttpHeaderDAbyte;
 byte HttpHeaderHObyte;
 byte HttpHeaderMIbyte;
 byte HttpHeaderSEbyte;
+byte HttpHeaderPNbyte;
+byte HttpHeaderPVbyte;
 byte HttpHeaderSTSbyte;
 byte HttpHeaderSUNbyte;
 byte HttpHeaderMONbyte;
@@ -121,10 +149,12 @@ const String n0 = "0";
 const byte year0 = 20;
 //const byte year0 = EEPROM.read(100);
 
+//BMBS Task Schedule function return DateTime (YYYY-MM-DD HH:MM:SS)
 String taskScheduleComplete (int nTask){
   return ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)) + " " + twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
 };
 
+//BMBS Task Schedule function return DateTime or Time according days of week filled
 String taskScheduleDisplay (int nTask){
   String tskDate = ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)));
   String tskTime = ((String) twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
@@ -136,6 +166,7 @@ String taskScheduleDisplay (int nTask){
   return tskDateTime;
 };
 
+//BMBS Task Schedule function days of week (81234567), first char = 0 (no days filled) or 8 (any day filled)
 String daysOfWeekComplete (int nTask){
   return ((String) EEPROM.read(100 + nTask * 20) + EEPROM.read(101 + nTask * 20) + EEPROM.read(102 + nTask * 20) + EEPROM.read(103 + nTask * 20) + EEPROM.read(104 + nTask * 20) + EEPROM.read(105 + nTask * 20) + EEPROM.read(106 + nTask * 20) + EEPROM.read(107 + nTask * 20));
 };
@@ -162,6 +193,7 @@ String wed01;
 String thu01;
 String fri01;
 String sat01;
+byte action01[] = {EEPROM.read(128), EEPROM.read(129)};
 
 byte task02 = EEPROM.read(131);
 
@@ -173,6 +205,7 @@ String wed02;
 String thu02;
 String fri02;
 String sat02;
+byte action02[] = {EEPROM.read(148), EEPROM.read(149)};
 
 //BMBS function datetime pre n0
  String twoDigits (byte fieldA)
@@ -199,7 +232,7 @@ byte HttpHeaderValue(String fieldA)
   return HttpHeaderVALbyte;
 };
 
-//BMBS function dayOfWeek and Status HTMLcode
+//BMBS function dayOfWeek HTMLcode
 String dayOfWeekValue(byte dow){
   String dayOfWeekVAL;
   if (dow == 48){
@@ -208,6 +241,7 @@ String dayOfWeekValue(byte dow){
   return dayOfWeekVAL;
 };
 
+//BMBS function Status HTMLcode
 String statusValue(byte sts){
   String statusVAL;
   if (sts == 0){
@@ -230,6 +264,34 @@ String formSelected = " selected";
 byte ntpip[] = {EEPROM.read(21), EEPROM.read(22), EEPROM.read(23), EEPROM.read(24)}; // default NTP server address
 byte tz[] = {EEPROM.read(26), EEPROM.read(27)};
 
+//BMBS current NTP time and weekday (HH:MM:SS W)
+String timeWeekNow(){
+  String nowTime =  ((String)twoDigits(hour(now())) + ":" + twoDigits(minute(now())) + ":" + twoDigits(second(now())));
+  int nowWeekday = weekday();
+  String tskTimeWeek = nowTime + " " + nowWeekday;
+
+  return tskTimeWeek;
+};
+
+//BMBS current NTP DateTime(YYYY-MM-DD HH:MM:SS)
+String dateTimeNow(){
+  String nowDate =  ((String)year(now()) + "-" + twoDigits(month(now())) + "-" + twoDigits(day(now())));
+  String nowTime =  ((String)twoDigits(hour(now())) + ":" + twoDigits(minute(now())) + ":" + twoDigits(second(now())));
+  String tskDateTime = nowDate + " " + nowTime;
+
+  return tskDateTime;
+};
+
+//BMBS current NTP DateTime and weekday (YYYY-MM-DD HH:MM:SS W)
+String dateTimeWeekNow(){
+  String nowDate =  ((String)year(now()) + "-" + twoDigits(month(now())) + "-" + twoDigits(day(now())));
+  String nowTime =  ((String)twoDigits(hour(now())) + ":" + twoDigits(minute(now())) + ":" + twoDigits(second(now())));
+  int nowWeekday = weekday();
+  String tskDateTimeWeek = nowDate + " " + nowTime + " " + nowWeekday;
+
+  return tskDateTimeWeek;
+};
+
 //BMBS time library configs
 IPAddress timeServer(ntpip[0], ntpip[1], ntpip[2], ntpip[3]); // 201.49.148.135 = b.st1.ntp.br
 int timeZone = 0;     // default UTC
@@ -238,9 +300,11 @@ unsigned int localPort = 8888;  // local port to listen for UDP packets
 
 void setup()
 {
-  variavelCFG = ((String)char(EEPROM.read(1)) + char(EEPROM.read(2)) + char(EEPROM.read(3)) + char(EEPROM.read(4)) + char(EEPROM.read(5)) + char(EEPROM.read(6)) + char(EEPROM.read(7)) + char(EEPROM.read(8)) + char(EEPROM.read(9)) + char(EEPROM.read(10))); 
+  pinMode(13, OUTPUT);
 
   //BMBS check previous BMBIPCONFIG
+  variavelCFG = ((String)char(EEPROM.read(1)) + char(EEPROM.read(2)) + char(EEPROM.read(3)) + char(EEPROM.read(4)) + char(EEPROM.read(5)) + char(EEPROM.read(6)) + char(EEPROM.read(7)) + char(EEPROM.read(8)) + char(EEPROM.read(9)) + char(EEPROM.read(10))); 
+
   if (variavelCFG == "BMB_ipconf")
   {
     for (int i = 0; i < 4; i++)
@@ -290,13 +354,22 @@ time_t prevDisplay = 0; // when the digital clock was displayed
 
 void loop()
 {
-
+  // refresh NTP DateTime
   if (timeStatus() != timeNotSet) {
     if (now() != prevDisplay) { //update the display only if time has changed
       prevDisplay = now();
       digitalClockDisplay();  
     }
   }
+
+  //BMBS run Task Schedules
+  if (dateTimeNow() == taskScheduleComplete(1)){
+      pinVoltage(action01[0], action01[1]);
+  };
+
+  if (dateTimeNow() == taskScheduleComplete(2)){
+      pinVoltage(action02[0], action02[1]);
+  };
 
   taskSchedule01Str = taskScheduleComplete(task01);
   taskSchedule02Str = taskScheduleComplete(task02);
@@ -374,6 +447,8 @@ void loop()
           HttpHeaderHObyte = HttpHeaderValue("HO=");
           HttpHeaderMIbyte = HttpHeaderValue("MI=");
           HttpHeaderSEbyte = HttpHeaderValue("SE=");
+          HttpHeaderPNbyte = HttpHeaderValue("PN=");
+          HttpHeaderPVbyte = HttpHeaderValue("PV=");
           HttpHeaderSTSbyte = HttpHeaderValue("sts=");
           HttpHeaderSUNbyte = HttpHeaderValue("sun=");
           HttpHeaderMONbyte = HttpHeaderValue("mon=");
@@ -447,6 +522,17 @@ void loop()
           Serial.println(daysOfWeek02Str[1]);
           Serial.print("daysOfWeek03Str[4]: ");
           Serial.println(daysOfWeek03Str[4]);
+          Serial.print("now: ");
+          Serial.println(now());
+          Serial.print("yearnow: ");
+          Serial.println(year(now()));
+          Serial.print("dateTimeWeekNow: ");
+          Serial.println(dateTimeWeekNow());
+          Serial.print("action01[0]: ");
+          Serial.println(action01[0]);
+          Serial.print("action01[1]: ");
+          Serial.println(action01[1]);
+          
 
           //BMBS web page's header
           client.println(F("HTTP/1.1 200 OK"));
@@ -572,15 +658,16 @@ void loop()
             client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>Task Scheduler</strong></h2>"));
             client.println(F("<div class='row my-2 bg-secondary'>"));
             client.println(F("<div class='col-1'><strong>task</strong></div>"));
-            client.println(F("<div class='col-4'><strong>timestamp</strong></div>"));
-            client.println(F("<div class='col-6'><strong>day of week</strong></div>"));
+            client.println(F("<div class='col-3'><strong>timestamp</strong></div>"));
+            client.println(F("<div class='col-5'><strong>day of week</strong></div>"));
+            client.println(F("<div class='col-2'><strong>action pin | volt</strong></div>"));
             client.println(F("<div class='col-1'><strong>status</strong></div>"));
             client.println(F("</div>"));
             client.println(F("<div class='row my-2'>"));
             client.println((String)"<div class='col-1'>" + task01 + "</div>");
-            client.println((String)"<div class='col-4'>" + taskSchedule01Display + "</div>");
-            client.println("<div class='col-6'>");
-            client.println("    <div class='row'>");
+            client.println((String)"<div class='col-3'>" + taskSchedule01Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
             client.println("        <div class='col" + sun01 + "'>S</div>");
             client.println("        <div class='col" + mon01 + "'>M</div>");
             client.println("        <div class='col" + tue01 + "'>T</div>");
@@ -588,15 +675,16 @@ void loop()
             client.println("        <div class='col" + thu01 + "'>T</div>");
             client.println("        <div class='col" + fri01 + "'>F</div>");
             client.println("        <div class='col" + sat01 + "'>S</div>");
-            client.println("    </div>");
-            client.println("</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + action01[0] + " | " + char(action01[1]) + "</div>");
             client.println("<div class='col-1" + sts01 + "</div>");
-            client.println("</div>");
+            client.println(F("</div>"));
              client.println(F("<div class='row my-2'>"));
             client.println((String)"<div class='col-1'>" + task02 + "</div>");
-            client.println((String)"<div class='col-4'>" + taskSchedule02Display + "</div>");
-            client.println("<div class='col-6'>");
-            client.println("    <div class='row'>");
+            client.println((String)"<div class='col-3'>" + taskSchedule02Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
             client.println("        <div class='col" + sun02 + "'>S</div>");
             client.println("        <div class='col" + mon02 + "'>M</div>");
             client.println("        <div class='col" + tue02 + "'>T</div>");
@@ -604,76 +692,79 @@ void loop()
             client.println("        <div class='col" + thu02 + "'>T</div>");
             client.println("        <div class='col" + fri02 + "'>F</div>");
             client.println("        <div class='col" + sat02 + "'>S</div>");
-            client.println("    </div>");
-            client.println("</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + action02[0] + " | " + char(action02[1]) + "</div>");
             client.println("<div class='col-1" + sts02 + "</div>");
-            client.println("</div><br><br>");
+            client.println(F("</div><br><br>"));
             client.println(F("<h5>Edit Task</h5>"));           
-            client.println("<form><input type='hidden' name='TS' value='BMB_tsksch'><input type='hidden' name='Y0' value='20'>");
-            client.println("  <div class='row my-2 bg-secondary'>");
-            client.println("      <div class='col-4'>task</div>");
-            client.println("      <div class='col-4'>time (H:M:S)</div>");
-            client.println("      <div class='col'>status</div>");
-            client.println("  </div>");
-            client.println("  <div class='row my-2'>");
-            client.println("      <div class='col-4'>");
-            client.println("          <div class='col-8'><input class='form-control form-control-sm' type='number' size='2' min='1' max='10' name='TA'></div>");
-            client.println("      </div>");
-            client.println("      <div class='col-4'>");
-            client.println("          <div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' max='23' name='HO'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='MI'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='SE'></div>");
-            client.println("      </div>");
-            client.println("      <div class='col'>");
-            client.println("          <div class='custom-control custom-switch'>");
-            client.println("              <input type='checkbox' class='custom-control-input' id='sts' name='sts' value='9'><label class='custom-control-label' for='sts'></label>");
-            client.println("          </div>");
-            client.println("      </div>");
-            client.println("  </div>");
-            client.println("  <div class='row my-2 bg-secondary'>");
-            client.println("      <div class='col-4'>date (YY-MM-DD)</div>");
-            client.println("      <div class='col-6 text-nowrap'>day of week</div>");
-            client.println("  </div>");
-            client.println("  <div class='row'>");
-            client.println("      <div class='col-4'>");
-            client.println("          <div class='row'><input class='form-control form-control-sm col-3' type='number' size='2' max='99' name='YE'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='12' name='MO'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='31' name='DA'></div>");
-            client.println("      </div>");
-            client.println("      <div class='col-6 text-wrap'>");
-            client.println("          <div class='row'>");
-            client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='sun' name='sun' value='1'>");
-            client.println("                  <label class='custom-control-label' for='sun'>S</label>");
-            client.println("              </div>");
-            client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='mon' name='mon' value='2'>");
-            client.println("                  <label class='custom-control-label' for='mon'>M</label>");
-            client.println("              </div>");
-            client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='tue' name='tue' value='3'>");
-            client.println("                  <label class='custom-control-label' for='tue'>T</label>");
-            client.println("              </div>");
-            client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='wed' name='wed' value='4'>");
-            client.println("                  <label class='custom-control-label' for='wed'>W</label>");
-            client.println("              </div>");
-            client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='thu' name='thu' value='5'>");
-            client.println("                  <label class='custom-control-label' for='thu'>T</label>");
-            client.println("              </div>");
-            client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='fri' name='fri' value='6'>");
-            client.println("                  <label class='custom-control-label' for='fri'>F</label>");
-            client.println("              </div>");
-            client.println("              <div class='col custom-control custom-checkbox'>");
-            client.println("                  <input type='checkbox' class='custom-control-input' id='sat' name='sat' value='7'>");
-            client.println("                  <label class='custom-control-label' for='sat'>S</label>");
-            client.println("              </div>");
-            client.println("          </div>");
-            client.println("      </div>");
-            client.println("      <div class='col-1 text-nowrap'>");
-            client.println("          <input class='btn btn-warning btn-sm' type='submit' value='submit'>");
-            client.println("      </div>");
-            client.println("    </div>");
-            client.println("  </div>");
-            client.println("</form><br>");
+            client.println(F("<form><input type='hidden' name='TS' value='BMB_tsksch'><input type='hidden' name='Y0' value='20'>"));
+            client.println(F("  <div class='row my-2 bg-secondary'>"));
+            client.println(F("      <div class='col-2'>task</div>"));
+            client.println(F("      <div class='col-4'>time (H:M:S)</div>"));
+            client.println(F("      <div class='col-4'>action (pin number / voltage)</div>"));
+            client.println(F("      <div class='col-1'>status</div>"));
+            client.println(F("  </div>"));
+            client.println(F("  <div class='row my-2'>"));
+            client.println(F("      <div class='col-2'>"));
+            client.println(F("          <input class='form-control form-control-sm' type='number' size='2' min='1' max='10' name='TA'>"));
+            client.println(F("      </div>"));
+            client.println(F("      <div class='col-4'>"));
+            client.println(F("          <div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' max='23' name='HO'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='MI'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='SE'></div>"));
+            client.println(F("      </div>"));
+            client.println(F("<div class='col-4'><div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' min='1' max='53' name='PN'> / <select class='form-control form-control-sm col-3'  name='PV'><option value='0' selected>select...</option><option value='72'>switch HIGH (H)</option><option value='76'>switch LOW (L)</option><option value='104'>pulse HIGHLOW (h)</option><option value='108'>pulse LOWHIGH (l)</option></select></div></div>"));
+            client.println(F("      <div class='col-1'>"));
+            client.println(F("          <div class='custom-control custom-switch'>"));
+            client.println(F("              <input type='checkbox' class='custom-control-input' id='sts' name='sts' value='9'><label class='custom-control-label' for='sts'></label>"));
+            client.println(F("          </div>"));
+            client.println(F("      </div>"));
+            client.println(F("  </div>"));
+            client.println(F("  <div class='row my-2 bg-secondary'>"));
+            client.println(F("      <div class='col-4'>date (YY-MM-DD)</div>"));
+            client.println(F("      <div class='col-6 text-nowrap'>day of week</div>"));
+            client.println(F("  </div>"));
+            client.println(F("  <div class='row'>"));
+            client.println(F("      <div class='col-4'>"));
+            client.println(F("          <div class='row'><input class='form-control form-control-sm col-3' type='number' size='2' max='99' name='YE'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='12' name='MO'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='31' name='DA'></div>"));
+            client.println(F("      </div>"));
+            client.println(F("      <div class='col-6 text-wrap'>"));
+            client.println(F("          <div class='row'>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='sun' name='sun' value='1'>"));
+            client.println(F("                  <label class='custom-control-label' for='sun'>S</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='mon' name='mon' value='2'>"));
+            client.println(F("                  <label class='custom-control-label' for='mon'>M</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='tue' name='tue' value='3'>"));
+            client.println(F("                  <label class='custom-control-label' for='tue'>T</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='wed' name='wed' value='4'>"));
+            client.println(F("                  <label class='custom-control-label' for='wed'>W</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='thu' name='thu' value='5'>"));
+            client.println(F("                  <label class='custom-control-label' for='thu'>T</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='fri' name='fri' value='6'>"));
+            client.println(F("                  <label class='custom-control-label' for='fri'>F</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='sat' name='sat' value='7'>"));
+            client.println(F("                  <label class='custom-control-label' for='sat'>S</label>"));
+            client.println(F("              </div>"));
+            client.println(F("          </div>"));
+            client.println(F("      </div>"));
+            client.println(F("      <div class='col-1 text-nowrap'>"));
+            client.println(F("          <input class='btn btn-warning btn-sm' type='submit' value='submit'>"));
+            client.println(F("      </div>"));
+            client.println(F("    </div>"));
+            client.println(F("  </div>"));
+            client.println(F("</form><br>"));
           }
 
           //BMBS internal page: /ntpzn
@@ -790,6 +881,8 @@ void loop()
             EEPROM.write(96 + HttpHeaderTAint * 20, HttpHeaderHObyte);
             EEPROM.write(97 + HttpHeaderTAint * 20, HttpHeaderMIbyte);
             EEPROM.write(98 + HttpHeaderTAint * 20, HttpHeaderSEbyte);
+            EEPROM.write(108 + HttpHeaderTAint * 20, HttpHeaderPNbyte);
+            EEPROM.write(109 + HttpHeaderTAint * 20, HttpHeaderPVbyte);
 
             if (HttpHeaderSUNbyte == 0 && HttpHeaderMONbyte == 0 && HttpHeaderTUEbyte == 0 && HttpHeaderWEDbyte == 0 && HttpHeaderTHUbyte == 0 && HttpHeaderFRIbyte == 0 && HttpHeaderSATbyte == 0){
               EEPROM.write(100 + HttpHeaderTAint * 20, 0);
@@ -840,12 +933,14 @@ void digitalClockDisplay(){
   // digital clock display of the time
   Serial.print(year()); 
   Serial.print("-");
-  Serial.print(month());
+  printDigits(month());
   Serial.print("-");
-  Serial.print(day());
+  printDigits(day());
   Serial.print(" ");
   Serial.print(hour());
+  Serial.print(":");
   printDigits(minute());
+  Serial.print(":");
   printDigits(second());
   Serial.print(" ");
   Serial.print(weekday());
@@ -855,7 +950,6 @@ void digitalClockDisplay(){
 //BMBS time library configs
 void printDigits(int digits){
   // utility for digital clock display: prints preceding colon and leading 0
-  Serial.print(":");
   if(digits < 10)
     Serial.print('0');
   Serial.print(digits);

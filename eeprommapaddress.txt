@@ -1,55 +1,76 @@
 EEPROM Address Map
 
-address                 content
-1                       initial String "B" (byte = 66)
-2                       initial String "M" (byte = 66)
-3                       initial String "B" (byte = 66)
-4                       initial String "_" (byte = 66)
-5                       initial String "i" (byte = 66)
-6                       initial String "p" (byte = 66)
-7                       initial String "c" (byte = 66)
-8                       initial String "o" (byte = 66)
-9                       initial String "n" (byte = 66)
-10                      initial String "f" (byte = 66)
+address     content
+1           initial String "B" (byte = 66)
+2           initial String "M" (byte = 77)
+3           initial String "B" (byte = 66)
+4           initial String "_" (byte = 95)
+5           initial String "i" (byte = 105)
+6           initial String "p" (byte = 112)
+7           initial String "c" (byte = 99)
+8           initial String "o" (byte = 111)
+9           initial String "n" (byte = 110)
+10          initial String "f" (byte = 102)
 
-21                      NTP Server IP block 1 (byte = ntpip[0])
-22                      NTP Server IP block 2 (byte = ntpip[1])
-23                      NTP Server IP block 3 (byte = ntpip[2])
-24                      NTP Server IP block 4 (byte = ntpip[3])
+21          NTP Server IP block 1 (byte = 0 to 255)
+22          NTP Server IP block 2 (byte = 0 to 255)
+23          NTP Server IP block 3 (byte = 0 to 255)
+24          NTP Server IP block 4 (byte = 0 to 255)
 
-26                      TimeZone + or - (byte = 43 or 45)
-27                      TimeZone number (byte 0 to 12)
+26          TimeZone + or - (byte = 43 or 45)
+27          TimeZone number (byte 0 to 12)
 
-51                      IP address block 1 (byte = ip[0])
-52                      IP address block 2 (byte = ip[1])
-53                      IP address block 3 (byte = ip[2])
-54                      IP address block 4 (byte = ip[3])
-56                      Subnet Mask subnet[0]
-57                      Subnet Mask subnet[1]
-58                      Subnet Mask subnet[2]
-59                      Subnet Mask subnet[3]
-61                      Gateway gateway[0]
-62                      Gateway gateway[1]
-63                      Gateway gateway[2]
-64                      Gateway gateway[3]
-66                      DNS dns[0]
-67                      DNS dns[1]
-68                      DNS dns[2]
-69                      DNS dns[3]
+51          IP address block 1 (byte = 0 to 255)
+52          IP address block 2 (byte = 0 to 255)
+53          IP address block 3 (byte = 0 to 255)
+54          IP address block 4 (byte = 0 to 255)
+56          Subnet Mask block 1 (byte = 0 to 255)
+57          Subnet Mask block 2 (byte = 0 to 255)
+58          Subnet Mask block 3 (byte = 0 to 255)
+59          Subnet Mask block 4 (byte = 0 to 255)
+61          Gateway block 1 (byte = 0 to 255)
+62          Gateway block 2 (byte = 0 to 255)
+63          Gateway block 3 (byte = 0 to 255)
+64          Gateway block 4 (byte = 0 to 255)
+66          DNS block 1 (byte = 0 to 255)
+67          DNS block 2 (byte = 0 to 255)
+68          DNS block 3 (byte = 0 to 255)
+69          DNS block 4 (byte = 0 to 255)
 
-111
-112
-113
-114
-115
-116
-117
-118
-120
-121
-122
-123
-124
-125
-126
-127
+111         task 1 number (byte = 1)
+112         task 1 status (byte = 0 or 9)
+113         task 1 year (byte = 0 to 99)
+114         task 1 month (byte = 1 to 12)
+115         task 1 day (byte = 1 to 31)
+116         task 1 hour (byte = 0 to 23)
+117         task 1 minute (byte = 0 to 59)
+118         task 1 second (byte = 0 to 59)
+120         task 1 week (byte = 0 or 8)
+121         task 1 sunday (byte = 0 or 1)
+122         task 1 monday (byte = 0 or 2)
+123         task 1 tuesday (byte = 0 or 3)
+124         task 1 wednesday (byte = 0 or 4)
+125         task 1 thursday (byte = 0 or 5)
+126         task 1 friday (byte = 0 or 6)
+127         task 1 saturday (byte = 0 or 7)
+128         task 1 action pin number (byte = 1 to 53)
+129         task 1 action pin voltage (byte = 72[HIGH], 76[LOW], 104[pulse HIGHLOW], 108[pulse LOWHIGH])
+
+131         task 2 number (byte = 1)
+132         task 2 status (byte = 0 or 9)
+133         task 2 year (byte = 0 to 99)
+134         task 2 month (byte = 1 to 12)
+135         task 2 day (byte = 1 to 31)
+136         task 2 hour (byte = 0 to 23)
+137         task 2 minute (byte = 0 to 59)
+138         task 2 second (byte = 0 to 59)
+140         task 2 week (byte = 0 or 8)
+141         task 2 sunday (byte = 0 or 1)
+142         task 2 monday (byte = 0 or 2)
+143         task 2 tuesday (byte = 0 or 3)
+144         task 2 wednesday (byte = 0 or 4)
+145         task 2 thursday (byte = 0 or 5)
+146         task 2 friday (byte = 0 or 6)
+147         task 2 saturday (byte = 0 or 7)
+148         task 2 action pin number (byte = 24 > 47; except 46)
+149         task 2 action pin voltage (byte = 72[HIGH], 76[LOW], 104[pulse HIGHLOW], 108[pulse LOWHIGH])
