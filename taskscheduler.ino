@@ -154,6 +154,11 @@ String taskScheduleComplete (int nTask){
   return ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)) + " " + twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
 };
 
+//BMBS Task Schedule function return Time (HH:MM:SS)
+String taskScheduleTime (int nTask){
+  return ((String) twoDigits(EEPROM.read(96 + nTask * 20)) + ":" + twoDigits(EEPROM.read(97 + nTask * 20)) + ":" + twoDigits(EEPROM.read(98 + nTask * 20)));
+};
+
 //BMBS Task Schedule function return DateTime or Time according days of week filled
 String taskScheduleDisplay (int nTask){
   String tskDate = ((String) year0 + twoDigits(EEPROM.read(93 + nTask * 20)) + "-" + twoDigits(EEPROM.read(94 + nTask * 20)) + "-" + twoDigits(EEPROM.read(95 + nTask * 20)));
@@ -174,16 +179,49 @@ String daysOfWeekComplete (int nTask){
 String taskSchedule01Str = "";
 String taskSchedule02Str = "";
 String taskSchedule03Str = "";
+String taskSchedule04Str = "";
+String taskSchedule05Str = "";
+String taskSchedule06Str = "";
+String taskSchedule07Str = "";
+String taskSchedule08Str = "";
+String taskSchedule09Str = "";
+String taskSchedule10Str = "";
 
 String taskSchedule01Display = "";
 String taskSchedule02Display = "";
 String taskSchedule03Display = "";
+String taskSchedule04Display = "";
+String taskSchedule05Display = "";
+String taskSchedule06Display = "";
+String taskSchedule07Display = "";
+String taskSchedule08Display = "";
+String taskSchedule09Display = "";
+String taskSchedule10Display = "";
 
 String daysOfWeek01Str = "";
 String daysOfWeek02Str = "";
 String daysOfWeek03Str = "";
+String daysOfWeek04Str = "";
+String daysOfWeek05Str = "";
+String daysOfWeek06Str = "";
+String daysOfWeek07Str = "";
+String daysOfWeek08Str = "";
+String daysOfWeek09Str = "";
+String daysOfWeek10Str = "";
 
-byte task01 = EEPROM.read(111);
+
+byte taskNumberArray[11];
+byte taskStatusArray[11];
+byte taskWeekArray[11];
+byte taskSunArray[11];
+byte taskMonArray[11];
+byte taskTueArray[11];
+byte taskWedArray[11];
+byte taskThuArray[11];
+byte taskFriArray[11];
+byte taskSatArray[11];
+byte taskActionPinArray[11];
+byte taskActionVoltArray[11];
 
 String sts01;
 String sun01;
@@ -193,9 +231,6 @@ String wed01;
 String thu01;
 String fri01;
 String sat01;
-byte action01[] = {EEPROM.read(128), EEPROM.read(129)};
-
-byte task02 = EEPROM.read(131);
 
 String sts02;
 String sun02;
@@ -205,7 +240,78 @@ String wed02;
 String thu02;
 String fri02;
 String sat02;
-byte action02[] = {EEPROM.read(148), EEPROM.read(149)};
+
+String sts03;
+String sun03;
+String mon03;
+String tue03;
+String wed03;
+String thu03;
+String fri03;
+String sat03;
+
+String sts04;
+String sun04;
+String mon04;
+String tue04;
+String wed04;
+String thu04;
+String fri04;
+String sat04;
+
+String sts05;
+String sun05;
+String mon05;
+String tue05;
+String wed05;
+String thu05;
+String fri05;
+String sat05;
+
+String sts06;
+String sun06;
+String mon06;
+String tue06;
+String wed06;
+String thu06;
+String fri06;
+String sat06;
+
+String sts07;
+String sun07;
+String mon07;
+String tue07;
+String wed07;
+String thu07;
+String fri07;
+String sat07;
+
+String sts08;
+String sun08;
+String mon08;
+String tue08;
+String wed08;
+String thu08;
+String fri08;
+String sat08;
+
+String sts09;
+String sun09;
+String mon09;
+String tue09;
+String wed09;
+String thu09;
+String fri09;
+String sat09;
+
+String sts10;
+String sun10;
+String mon10;
+String tue10;
+String wed10;
+String thu10;
+String fri10;
+String sat10;
 
 //BMBS function datetime pre n0
  String twoDigits (byte fieldA)
@@ -264,6 +370,11 @@ String formSelected = " selected";
 byte ntpip[] = {EEPROM.read(21), EEPROM.read(22), EEPROM.read(23), EEPROM.read(24)}; // default NTP server address
 byte tz[] = {EEPROM.read(26), EEPROM.read(27)};
 
+//BMBS current NTP time(HH:MM:SS)
+String timeNow(){
+  return ((String)twoDigits(hour(now())) + ":" + twoDigits(minute(now())) + ":" + twoDigits(second(now())));
+};
+
 //BMBS current NTP time and weekday (HH:MM:SS W)
 String timeWeekNow(){
   String nowTime =  ((String)twoDigits(hour(now())) + ":" + twoDigits(minute(now())) + ":" + twoDigits(second(now())));
@@ -300,8 +411,11 @@ unsigned int localPort = 8888;  // local port to listen for UDP packets
 
 void setup()
 {
-  pinMode(13, OUTPUT);
-
+  //BMBS piMode OUTPUT 1 to 53
+  for (int i = 0; i < 54; i++){
+    pinMode(i, OUTPUT);
+  };
+  
   //BMBS check previous BMBIPCONFIG
   variavelCFG = ((String)char(EEPROM.read(1)) + char(EEPROM.read(2)) + char(EEPROM.read(3)) + char(EEPROM.read(4)) + char(EEPROM.read(5)) + char(EEPROM.read(6)) + char(EEPROM.read(7)) + char(EEPROM.read(8)) + char(EEPROM.read(9)) + char(EEPROM.read(10))); 
 
@@ -324,6 +438,23 @@ void setup()
       dns[i] = EEPROM.read(i + 66);
     }
   };
+
+  //BMS populate task arrays
+  for (int t = 1; t < 11; t++)
+    {
+      taskNumberArray[t] = EEPROM.read(t * 20 + 91);
+      taskStatusArray[t] = EEPROM.read(t * 20 + 92);
+      taskWeekArray[t] = EEPROM.read(t * 20 + 100);
+      taskSunArray[t] = EEPROM.read(t * 20 + 101);
+      taskMonArray[t] = EEPROM.read(t * 20 + 102);
+      taskTueArray[t] = EEPROM.read(t * 20 + 103);
+      taskWedArray[t] = EEPROM.read(t * 20 + 104);
+      taskThuArray[t] = EEPROM.read(t * 20 + 105);
+      taskFriArray[t] = EEPROM.read(t * 20 + 106);
+      taskSatArray[t] = EEPROM.read(t * 20 + 107);
+      taskActionPinArray[t] = EEPROM.read(t * 20 + 108);
+      taskActionVoltArray[t] = EEPROM.read(t * 20 + 109);
+    };
 
   //BMBS timezone info
   if (tz[0] == 45) {
@@ -362,26 +493,50 @@ void loop()
     }
   }
 
+  taskSchedule01Str = taskScheduleComplete(taskNumberArray[1]);
+  taskSchedule02Str = taskScheduleComplete(taskNumberArray[2]);
+  taskSchedule03Str = taskScheduleComplete(taskNumberArray[3]);
+  taskSchedule04Str = taskScheduleComplete(taskNumberArray[4]);
+  taskSchedule05Str = taskScheduleComplete(taskNumberArray[5]);
+  taskSchedule06Str = taskScheduleComplete(taskNumberArray[6]);
+  taskSchedule07Str = taskScheduleComplete(taskNumberArray[7]);
+  taskSchedule08Str = taskScheduleComplete(taskNumberArray[8]);
+  taskSchedule09Str = taskScheduleComplete(taskNumberArray[9]);
+  taskSchedule10Str = taskScheduleComplete(taskNumberArray[10]);
+
+  taskSchedule01Display = taskScheduleDisplay(taskNumberArray[1]);
+  taskSchedule02Display = taskScheduleDisplay(taskNumberArray[2]);
+  taskSchedule03Display = taskScheduleDisplay(taskNumberArray[3]);
+  taskSchedule04Display = taskScheduleDisplay(taskNumberArray[4]);
+  taskSchedule05Display = taskScheduleDisplay(taskNumberArray[5]);
+  taskSchedule06Display = taskScheduleDisplay(taskNumberArray[6]);
+  taskSchedule07Display = taskScheduleDisplay(taskNumberArray[7]);
+  taskSchedule08Display = taskScheduleDisplay(taskNumberArray[8]);
+  taskSchedule09Display = taskScheduleDisplay(taskNumberArray[9]);
+  taskSchedule10Display = taskScheduleDisplay(taskNumberArray[10]);
+
+  daysOfWeek01Str = daysOfWeekComplete(taskNumberArray[1]);
+  daysOfWeek02Str = daysOfWeekComplete(taskNumberArray[2]);
+  daysOfWeek03Str = daysOfWeekComplete(taskNumberArray[3]);
+  daysOfWeek04Str = daysOfWeekComplete(taskNumberArray[4]);
+  daysOfWeek05Str = daysOfWeekComplete(taskNumberArray[5]);
+  daysOfWeek06Str = daysOfWeekComplete(taskNumberArray[6]);
+  daysOfWeek07Str = daysOfWeekComplete(taskNumberArray[7]);
+  daysOfWeek08Str = daysOfWeekComplete(taskNumberArray[8]);
+  daysOfWeek09Str = daysOfWeekComplete(taskNumberArray[9]);
+  daysOfWeek10Str = daysOfWeekComplete(taskNumberArray[10]);
+
   //BMBS run Task Schedules
-  if (dateTimeNow() == taskScheduleComplete(1)){
-      pinVoltage(action01[0], action01[1]);
-  };
-
-  if (dateTimeNow() == taskScheduleComplete(2)){
-      pinVoltage(action02[0], action02[1]);
-  };
-
-  taskSchedule01Str = taskScheduleComplete(task01);
-  taskSchedule02Str = taskScheduleComplete(task02);
-  taskSchedule03Str = taskScheduleComplete(3);
-
-  taskSchedule01Display = taskScheduleDisplay(task01);
-  taskSchedule02Display = taskScheduleDisplay(task02);
-  taskSchedule03Display = taskScheduleDisplay(3);
-
-  daysOfWeek01Str = daysOfWeekComplete(task01);
-  daysOfWeek02Str = daysOfWeekComplete(task02);
-  daysOfWeek03Str = daysOfWeekComplete(3);
+  taskScheduleExecute(1);
+  taskScheduleExecute(2);
+  taskScheduleExecute(3);
+  taskScheduleExecute(4);
+  taskScheduleExecute(5);
+  taskScheduleExecute(6);
+  taskScheduleExecute(7);
+  taskScheduleExecute(8);
+  taskScheduleExecute(9);
+  taskScheduleExecute(10);
   
   // Create a client connection
   EthernetClient client = server.available();
@@ -466,7 +621,7 @@ void loop()
           HttpHeaderTZ1byte = HttpHeaderValue("T1=");
           HttpHeaderTZ2byte = HttpHeaderValue("T2=");
 
-          sts01 = statusValue(EEPROM.read(112));
+          sts01 = statusValue(taskStatusArray[1]);
           sun01 = dayOfWeekValue(daysOfWeek01Str[1]);
           mon01 = dayOfWeekValue(daysOfWeek01Str[2]);
           tue01 = dayOfWeekValue(daysOfWeek01Str[3]);
@@ -475,7 +630,7 @@ void loop()
           fri01 = dayOfWeekValue(daysOfWeek01Str[6]);
           sat01 = dayOfWeekValue(daysOfWeek01Str[7]);
 
-          sts02 = statusValue(EEPROM.read(132));
+          sts02 = statusValue(taskStatusArray[2]);
           sun02 = dayOfWeekValue(daysOfWeek02Str[1]);
           mon02 = dayOfWeekValue(daysOfWeek02Str[2]);
           tue02 = dayOfWeekValue(daysOfWeek02Str[3]);
@@ -483,6 +638,78 @@ void loop()
           thu02 = dayOfWeekValue(daysOfWeek02Str[5]);
           fri02 = dayOfWeekValue(daysOfWeek02Str[6]);
           sat02 = dayOfWeekValue(daysOfWeek02Str[7]);
+
+          sts03 = statusValue(taskStatusArray[3]);
+          sun03 = dayOfWeekValue(daysOfWeek03Str[1]);
+          mon03 = dayOfWeekValue(daysOfWeek03Str[2]);
+          tue03 = dayOfWeekValue(daysOfWeek03Str[3]);
+          wed03 = dayOfWeekValue(daysOfWeek03Str[4]);
+          thu03 = dayOfWeekValue(daysOfWeek03Str[5]);
+          fri03 = dayOfWeekValue(daysOfWeek03Str[6]);
+          sat03 = dayOfWeekValue(daysOfWeek03Str[7]);
+
+          sts04 = statusValue(taskStatusArray[4]);
+          sun04 = dayOfWeekValue(daysOfWeek04Str[1]);
+          mon04 = dayOfWeekValue(daysOfWeek04Str[2]);
+          tue04 = dayOfWeekValue(daysOfWeek04Str[3]);
+          wed04 = dayOfWeekValue(daysOfWeek04Str[4]);
+          thu04 = dayOfWeekValue(daysOfWeek04Str[5]);
+          fri04 = dayOfWeekValue(daysOfWeek04Str[6]);
+          sat04 = dayOfWeekValue(daysOfWeek04Str[7]);
+
+          sts05 = statusValue(taskStatusArray[5]);
+          sun05 = dayOfWeekValue(daysOfWeek05Str[1]);
+          mon05 = dayOfWeekValue(daysOfWeek05Str[2]);
+          tue05 = dayOfWeekValue(daysOfWeek05Str[3]);
+          wed05 = dayOfWeekValue(daysOfWeek05Str[4]);
+          thu05 = dayOfWeekValue(daysOfWeek05Str[5]);
+          fri05 = dayOfWeekValue(daysOfWeek05Str[6]);
+          sat05 = dayOfWeekValue(daysOfWeek05Str[7]);
+
+          sts06 = statusValue(taskStatusArray[6]);
+          sun06 = dayOfWeekValue(daysOfWeek06Str[1]);
+          mon06 = dayOfWeekValue(daysOfWeek06Str[2]);
+          tue06 = dayOfWeekValue(daysOfWeek06Str[3]);
+          wed06 = dayOfWeekValue(daysOfWeek06Str[4]);
+          thu06 = dayOfWeekValue(daysOfWeek06Str[5]);
+          fri06 = dayOfWeekValue(daysOfWeek06Str[6]);
+          sat06 = dayOfWeekValue(daysOfWeek06Str[7]);
+
+          sts07 = statusValue(taskStatusArray[7]);
+          sun07 = dayOfWeekValue(daysOfWeek07Str[1]);
+          mon07 = dayOfWeekValue(daysOfWeek07Str[2]);
+          tue07 = dayOfWeekValue(daysOfWeek07Str[3]);
+          wed07 = dayOfWeekValue(daysOfWeek07Str[4]);
+          thu07 = dayOfWeekValue(daysOfWeek07Str[5]);
+          fri07 = dayOfWeekValue(daysOfWeek07Str[6]);
+          sat07 = dayOfWeekValue(daysOfWeek07Str[7]);
+
+          sts08 = statusValue(taskStatusArray[8]);
+          sun08 = dayOfWeekValue(daysOfWeek08Str[1]);
+          mon08 = dayOfWeekValue(daysOfWeek08Str[2]);
+          tue08 = dayOfWeekValue(daysOfWeek08Str[3]);
+          wed08 = dayOfWeekValue(daysOfWeek08Str[4]);
+          thu08 = dayOfWeekValue(daysOfWeek08Str[5]);
+          fri08 = dayOfWeekValue(daysOfWeek08Str[6]);
+          sat08 = dayOfWeekValue(daysOfWeek08Str[7]);
+
+          sts09 = statusValue(taskStatusArray[9]);
+          sun09 = dayOfWeekValue(daysOfWeek09Str[1]);
+          mon09 = dayOfWeekValue(daysOfWeek09Str[2]);
+          tue09 = dayOfWeekValue(daysOfWeek09Str[3]);
+          wed09 = dayOfWeekValue(daysOfWeek09Str[4]);
+          thu09 = dayOfWeekValue(daysOfWeek09Str[5]);
+          fri09 = dayOfWeekValue(daysOfWeek09Str[6]);
+          sat09 = dayOfWeekValue(daysOfWeek09Str[7]);
+
+          sts10 = statusValue(taskStatusArray[10]);
+          sun10 = dayOfWeekValue(daysOfWeek10Str[1]);
+          mon10 = dayOfWeekValue(daysOfWeek10Str[2]);
+          tue10 = dayOfWeekValue(daysOfWeek10Str[3]);
+          wed10 = dayOfWeekValue(daysOfWeek10Str[4]);
+          thu10 = dayOfWeekValue(daysOfWeek10Str[5]);
+          fri10 = dayOfWeekValue(daysOfWeek10Str[6]);
+          sat10 = dayOfWeekValue(daysOfWeek10Str[7]);
 
           Serial.println(Ethernet.localIP());
           Serial.println(Ethernet.dnsServerIP());
@@ -494,44 +721,21 @@ void loop()
           Serial.println(HttpHeader);
           Serial.print("HttpHeaderTSK: ");
           Serial.println(HttpHeaderTSK);
-          Serial.print("taskSchedule01Str: ");
-          Serial.println(taskSchedule01Str);
-          Serial.print("taskSchedule02Str: ");
-          Serial.println(taskSchedule02Str);
-          Serial.print("taskSchedule03Str: ");
-          Serial.println(taskSchedule03Str);
-          Serial.print("tz[0]: ");
-          Serial.println(tz[0]);
-          Serial.print("tz[1]: ");
-          Serial.println(tz[1]);
-          Serial.print("taskSchedule01Display: ");
-          Serial.println(taskSchedule01Display);
-          Serial.print("taskSchedule02Display: ");
-          Serial.println(taskSchedule02Display);
-          Serial.print("taskSchedule03Display: ");
-          Serial.println(taskSchedule03Display);
-          Serial.print("daysOfWeek01Str: ");
-          Serial.println(daysOfWeek01Str);
-          Serial.print("daysOfWeek02Str: ");
-          Serial.println(daysOfWeek02Str);
-          Serial.print("daysOfWeek03Str: ");
-          Serial.println(daysOfWeek03Str);
-          Serial.print("daysOfWeek01Str[5]: ");
-          Serial.println(daysOfWeek01Str[5]);
-          Serial.print("daysOfWeek02Str[1]: ");
-          Serial.println(daysOfWeek02Str[1]);
-          Serial.print("daysOfWeek03Str[4]: ");
-          Serial.println(daysOfWeek03Str[4]);
-          Serial.print("now: ");
-          Serial.println(now());
-          Serial.print("yearnow: ");
-          Serial.println(year(now()));
-          Serial.print("dateTimeWeekNow: ");
-          Serial.println(dateTimeWeekNow());
-          Serial.print("action01[0]: ");
-          Serial.println(action01[0]);
-          Serial.print("action01[1]: ");
-          Serial.println(action01[1]);
+          Serial.print("dateTimeWeekNow()[20]: ");
+          Serial.println(dateTimeWeekNow()[20]);
+
+          Serial.print("daysOfWeek02Str[5]: ");
+          Serial.println(daysOfWeek02Str[5]);
+          Serial.print("taskActionPinArray[1]: ");
+          Serial.println(taskActionPinArray[1]);
+          Serial.print("taskActionPinArray[2]: ");
+          Serial.println(taskActionPinArray[2]);
+          Serial.print("taskActionPinArray[3]: ");
+          Serial.println(taskActionPinArray[3]);
+
+
+          
+          
           
 
           //BMBS web page's header
@@ -664,7 +868,7 @@ void loop()
             client.println(F("<div class='col-1'><strong>status</strong></div>"));
             client.println(F("</div>"));
             client.println(F("<div class='row my-2'>"));
-            client.println((String)"<div class='col-1'>" + task01 + "</div>");
+            client.println((String)"<div class='col-1'>" + taskNumberArray[1] + "</div>");
             client.println((String)"<div class='col-3'>" + taskSchedule01Display + "</div>");
             client.println(F("<div class='col-5'>"));
             client.println(F("    <div class='row'>"));
@@ -677,11 +881,11 @@ void loop()
             client.println("        <div class='col" + sat01 + "'>S</div>");
             client.println(F("    </div>"));
             client.println(F("</div>"));
-            client.println((String)"<div class='col-2'>" + action01[0] + " | " + char(action01[1]) + "</div>");
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[1] + " | " + char(taskActionVoltArray[1]) + "</div>");
             client.println("<div class='col-1" + sts01 + "</div>");
             client.println(F("</div>"));
-             client.println(F("<div class='row my-2'>"));
-            client.println((String)"<div class='col-1'>" + task02 + "</div>");
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[2] + "</div>");
             client.println((String)"<div class='col-3'>" + taskSchedule02Display + "</div>");
             client.println(F("<div class='col-5'>"));
             client.println(F("    <div class='row'>"));
@@ -694,8 +898,144 @@ void loop()
             client.println("        <div class='col" + sat02 + "'>S</div>");
             client.println(F("    </div>"));
             client.println(F("</div>"));
-            client.println((String)"<div class='col-2'>" + action02[0] + " | " + char(action02[1]) + "</div>");
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[2] + " | " + char(taskActionVoltArray[2]) + "</div>");
             client.println("<div class='col-1" + sts02 + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[3] + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule03Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
+            client.println("        <div class='col" + sun03 + "'>S</div>");
+            client.println("        <div class='col" + mon03 + "'>M</div>");
+            client.println("        <div class='col" + tue03 + "'>T</div>");
+            client.println("        <div class='col" + wed03 + "'>W</div>");
+            client.println("        <div class='col" + thu03 + "'>T</div>");
+            client.println("        <div class='col" + fri03 + "'>F</div>");
+            client.println("        <div class='col" + sat03 + "'>S</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[3] + " | " + char(taskActionVoltArray[3]) + "</div>");
+            client.println("<div class='col-1" + sts03 + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[4] + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule04Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
+            client.println("        <div class='col" + sun04 + "'>S</div>");
+            client.println("        <div class='col" + mon04 + "'>M</div>");
+            client.println("        <div class='col" + tue04 + "'>T</div>");
+            client.println("        <div class='col" + wed04 + "'>W</div>");
+            client.println("        <div class='col" + thu04 + "'>T</div>");
+            client.println("        <div class='col" + fri04 + "'>F</div>");
+            client.println("        <div class='col" + sat04 + "'>S</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[4] + " | " + char(taskActionVoltArray[4]) + "</div>");
+            client.println("<div class='col-1" + sts04 + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[5] + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule05Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
+            client.println("        <div class='col" + sun05 + "'>S</div>");
+            client.println("        <div class='col" + mon05 + "'>M</div>");
+            client.println("        <div class='col" + tue05 + "'>T</div>");
+            client.println("        <div class='col" + wed05 + "'>W</div>");
+            client.println("        <div class='col" + thu05 + "'>T</div>");
+            client.println("        <div class='col" + fri05 + "'>F</div>");
+            client.println("        <div class='col" + sat05 + "'>S</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[5] + " | " + char(taskActionVoltArray[5]) + "</div>");
+            client.println("<div class='col-1" + sts05 + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[6] + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule03Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
+            client.println("        <div class='col" + sun06 + "'>S</div>");
+            client.println("        <div class='col" + mon06 + "'>M</div>");
+            client.println("        <div class='col" + tue06 + "'>T</div>");
+            client.println("        <div class='col" + wed06 + "'>W</div>");
+            client.println("        <div class='col" + thu06 + "'>T</div>");
+            client.println("        <div class='col" + fri06 + "'>F</div>");
+            client.println("        <div class='col" + sat06 + "'>S</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[6] + " | " + char(taskActionVoltArray[6]) + "</div>");
+            client.println("<div class='col-1" + sts06 + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[7] + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule07Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
+            client.println("        <div class='col" + sun07 + "'>S</div>");
+            client.println("        <div class='col" + mon07 + "'>M</div>");
+            client.println("        <div class='col" + tue07 + "'>T</div>");
+            client.println("        <div class='col" + wed07 + "'>W</div>");
+            client.println("        <div class='col" + thu07 + "'>T</div>");
+            client.println("        <div class='col" + fri07 + "'>F</div>");
+            client.println("        <div class='col" + sat07 + "'>S</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[7] + " | " + char(taskActionVoltArray[7]) + "</div>");
+            client.println("<div class='col-1" + sts07 + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[8] + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule08Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
+            client.println("        <div class='col" + sun08 + "'>S</div>");
+            client.println("        <div class='col" + mon08 + "'>M</div>");
+            client.println("        <div class='col" + tue08 + "'>T</div>");
+            client.println("        <div class='col" + wed08 + "'>W</div>");
+            client.println("        <div class='col" + thu08 + "'>T</div>");
+            client.println("        <div class='col" + fri08 + "'>F</div>");
+            client.println("        <div class='col" + sat08 + "'>S</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[8] + " | " + char(taskActionVoltArray[8]) + "</div>");
+            client.println("<div class='col-1" + sts08 + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[9] + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule09Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
+            client.println("        <div class='col" + sun09 + "'>S</div>");
+            client.println("        <div class='col" + mon09 + "'>M</div>");
+            client.println("        <div class='col" + tue09 + "'>T</div>");
+            client.println("        <div class='col" + wed09 + "'>W</div>");
+            client.println("        <div class='col" + thu09 + "'>T</div>");
+            client.println("        <div class='col" + fri09 + "'>F</div>");
+            client.println("        <div class='col" + sat09 + "'>S</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[9] + " | " + char(taskActionVoltArray[9]) + "</div>");
+            client.println("<div class='col-1" + sts09 + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-1'>" + taskNumberArray[10] + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule10Display + "</div>");
+            client.println(F("<div class='col-5'>"));
+            client.println(F("    <div class='row'>"));
+            client.println("        <div class='col" + sun10 + "'>S</div>");
+            client.println("        <div class='col" + mon10 + "'>M</div>");
+            client.println("        <div class='col" + tue10 + "'>T</div>");
+            client.println("        <div class='col" + wed10 + "'>W</div>");
+            client.println("        <div class='col" + thu10 + "'>T</div>");
+            client.println("        <div class='col" + fri10 + "'>F</div>");
+            client.println("        <div class='col" + sat10 + "'>S</div>");
+            client.println(F("    </div>"));
+            client.println(F("</div>"));
+            client.println((String)"<div class='col-2'>" + taskActionPinArray[10] + " | " + char(taskActionVoltArray[10]) + "</div>");
+            client.println("<div class='col-1" + sts10 + "</div>");
             client.println(F("</div><br><br>"));
             client.println(F("<h5>Edit Task</h5>"));           
             client.println(F("<form><input type='hidden' name='TS' value='BMB_tsksch'><input type='hidden' name='Y0' value='20'>"));
@@ -1005,4 +1345,15 @@ void sendNTPpacket(IPAddress &address)
   Udp.beginPacket(address, 123); //NTP requests are to port 123
   Udp.write(packetBuffer, NTP_PACKET_SIZE);
   Udp.endPacket();
+}
+
+//BMBS Task Schedule execute function
+void taskScheduleExecute (int ntask){
+  if (timeNow() == taskScheduleTime(taskNumberArray[ntask]) && taskStatusArray[ntask] == 9){
+    if (dateTimeNow() == taskScheduleComplete(taskNumberArray[ntask]) && daysOfWeekComplete(taskNumberArray[ntask])[0] == 48){
+      pinVoltage(taskActionPinArray[ntask], taskActionVoltArray[ntask]);
+    } else if (timeNow() == taskScheduleTime(taskNumberArray[ntask]) && daysOfWeekComplete(taskNumberArray[ntask]).indexOf(dateTimeWeekNow()[20]) > 0 ){
+      pinVoltage(taskActionPinArray[ntask], taskActionVoltArray[ntask]);
+    }
+  }
 }
