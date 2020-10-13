@@ -491,7 +491,7 @@ void loop()
       prevDisplay = now();
       digitalClockDisplay();  
     }
-  }
+  };
 
   taskSchedule01Str = taskScheduleComplete(taskNumberArray[1]);
   taskSchedule02Str = taskScheduleComplete(taskNumberArray[2]);
@@ -723,20 +723,8 @@ void loop()
           Serial.println(HttpHeaderTSK);
           Serial.print("dateTimeWeekNow()[20]: ");
           Serial.println(dateTimeWeekNow()[20]);
-
-          Serial.print("daysOfWeek02Str[5]: ");
-          Serial.println(daysOfWeek02Str[5]);
-          Serial.print("taskActionPinArray[1]: ");
-          Serial.println(taskActionPinArray[1]);
-          Serial.print("taskActionPinArray[2]: ");
-          Serial.println(taskActionPinArray[2]);
-          Serial.print("taskActionPinArray[3]: ");
-          Serial.println(taskActionPinArray[3]);
-
-
-          
-          
-          
+          Serial.print("EEPROM.read(50): ");
+          Serial.println(EEPROM.read(50));
 
           //BMBS web page's header
           client.println(F("HTTP/1.1 200 OK"));
@@ -754,14 +742,24 @@ void loop()
           client.println(F("<!-- jQuery UI CSS -->"));
           client.println(F("<link rel='stylesheet' href='https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css'>"));
 
+          //BMBS internal page: /fsend
+          //character conversion in https://www.arduino.cc/en/Reference/ASCIIchart
+          if (HttpHeader[5] == 102 && HttpHeader[6] == 115 && HttpHeader[7] == 101 && HttpHeader[8] == 110 && HttpHeader[9] == 100)
+          {
+            client.println(F("<title>Form Sended</title>"));
+            client.println(F("</head><body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>Form Sended</strong></h2>"));
+            client.println(F("<h3><a href='/' class='row justify-content-center'><button class='btn btn-warning'>reload</button></a></h3><br><br>"));
+          }
+
+
           //BMBS internal page: /ipcfg
           //character conversion in https://www.arduino.cc/en/Reference/ASCIIchart
-          if (HttpHeader[5] == 105 && HttpHeader[6] == 112 && HttpHeader[7] == 99 && HttpHeader[8] == 102 && HttpHeader[9] == 103)
+          else if (HttpHeader[5] == 105 && HttpHeader[6] == 112 && HttpHeader[7] == 99 && HttpHeader[8] == 102 && HttpHeader[9] == 103)
           {
             client.println(F("<title>IP Config</title>"));
             client.println(F("</head>"));
             client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>IP Config Page</strong></h2>"));
-            client.println(F("<form><input type='hidden' name='CF' value='BMB_ipconf'>"));
+            client.println(F("<form action='/fsend'><input type='hidden' name='CF' value='BMB_ipconf'>"));
             client.print(divRow);
             client.print(F("IP Address: </div>"));
             client.print(divClassInput0);
@@ -860,12 +858,155 @@ void loop()
             client.println(F("<title>Task Scheduler</title>"));
             client.println(F("</head>"));
             client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>Task Scheduler</strong></h2>"));
+            client.println(F("<h5>Edit Task</h5>"));           
+            client.println(F("<form action='/fsend'><input type='hidden' name='TS' value='BMB_tsksch'><input type='hidden' name='Y0' value='20'>"));
+            client.println(F("  <div class='row my-2 bg-secondary'>"));
+            client.println(F("      <div class='col-2'>task</div>"));
+            client.println(F("      <div class='col-4'>time (H:M:S)</div>"));
+            client.println(F("      <div class='col-4'>action (pin number / voltage)</div>"));
+            client.println(F("      <div class='col-1'>status</div>"));
+            client.println(F("  </div>"));
+            client.println(F("  <div class='row my-2'>"));
+            client.println(F("      <div class='col-2'>"));
+            client.println(F("          <input class='form-control form-control-sm' type='number' size='2' min='1' max='10' name='TA'>"));
+            client.println(F("      </div>"));
+            client.println(F("      <div class='col-4'>"));
+            client.println(F("          <div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' max='23' name='HO'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='MI'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='SE'></div>"));
+            client.println(F("      </div>"));
+            client.println(F("<div class='col-4'><div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' min='1' max='53' name='PN'> / <select class='form-control form-control-sm col-3'  name='PV'><option value='0' selected>select...</option><option value='72'>switch HIGH (H)</option><option value='76'>switch LOW (L)</option><option value='104'>pulse HIGHLOW (h)</option><option value='108'>pulse LOWHIGH (l)</option></select></div></div>"));
+            client.println(F("      <div class='col-1'>"));
+            client.println(F("          <div class='custom-control custom-switch'>"));
+            client.println(F("              <input type='checkbox' class='custom-control-input' id='sts' name='sts' value='9'><label class='custom-control-label' for='sts'></label>"));
+            client.println(F("          </div>"));
+            client.println(F("      </div>"));
+            client.println(F("  </div>"));
+            client.println(F("  <div class='row my-2 bg-secondary'>"));
+            client.println(F("      <div class='col-4'>date (YY-MM-DD)</div>"));
+            client.println(F("      <div class='col-6 text-nowrap'>day of week</div>"));
+            client.println(F("  </div>"));
+            client.println(F("  <div class='row'>"));
+            client.println(F("      <div class='col-4'>"));
+            client.println(F("          <div class='row'><input class='form-control form-control-sm col-3' type='number' size='2' max='99' name='YE'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='12' name='MO'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='31' name='DA'></div>"));
+            client.println(F("      </div>"));
+            client.println(F("      <div class='col-6 text-wrap'>"));
+            client.println(F("          <div class='row'>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='sun' name='sun' value='1'>"));
+            client.println(F("                  <label class='custom-control-label' for='sun'>S</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='mon' name='mon' value='2'>"));
+            client.println(F("                  <label class='custom-control-label' for='mon'>M</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='tue' name='tue' value='3'>"));
+            client.println(F("                  <label class='custom-control-label' for='tue'>T</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='wed' name='wed' value='4'>"));
+            client.println(F("                  <label class='custom-control-label' for='wed'>W</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='thu' name='thu' value='5'>"));
+            client.println(F("                  <label class='custom-control-label' for='thu'>T</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='fri' name='fri' value='6'>"));
+            client.println(F("                  <label class='custom-control-label' for='fri'>F</label>"));
+            client.println(F("              </div>"));
+            client.println(F("              <div class='col custom-control custom-checkbox'>"));
+            client.println(F("                  <input type='checkbox' class='custom-control-input' id='sat' name='sat' value='7'>"));
+            client.println(F("                  <label class='custom-control-label' for='sat'>S</label>"));
+            client.println(F("              </div>"));
+            client.println(F("          </div>"));
+            client.println(F("      </div>"));
+            client.println(F("      <div class='col-1 text-nowrap'>"));
+            client.println(F("          <input class='btn btn-warning btn-sm' type='submit' value='submit'>"));
+            client.println(F("      </div>"));
+            client.println(F("    </div>"));
+            client.println(F("  </div>"));
+            client.println(F("</form><br>"));
+          }
+
+          //BMBS internal page: /ntpzn
+          //character conversion in https://www.arduino.cc/en/Reference/ASCIIchart
+          else if (HttpHeader[5] == 110 && HttpHeader[6] == 116 && HttpHeader[7] == 112 && HttpHeader[8] == 122 && HttpHeader[9] == 110)
+          {
+            client.println(F("<title>NTP & TimeZone</title>"));
+            client.println(F("</head>"));
+            client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>NTP & TimeZone</strong></h2>"));
+            client.println(F("<form action='/fsend'><input type='hidden' name='TZ' value='BMB_timezn'>"));
+            client.print(divRow);
+            client.print(F("NTP IP Address: </div>"));
+            client.print(divClassInput0);
+            client.print(F("N1"));
+            client.print(divClassInput1);
+            client.print(ntpip[0]);
+            client.print(divClassInput2);
+            client.print(divClassInput0);
+            client.print(F("N2"));
+            client.print(divClassInput1);
+            client.print(ntpip[1]);
+            client.print(divClassInput2);
+            client.print(divClassInput0);
+            client.print(F("N3"));
+            client.print(divClassInput1);
+            client.print(ntpip[2]);
+            client.print(divClassInput2);
+            client.print(divClassInput0);
+            client.print(F("N4"));
+            client.print(divClassInput1);
+            client.print(ntpip[3]);
+            client.println(F("'></div></div>"));
+            client.print(divRow);
+            client.print(F("TimeZone: </div>"));
+            client.print(F("<div class='col-1'><select class='form-control form-control-sm'  name='T1'><option value='45'>-</option><option value='43'"));
+            client.print(formSelected);
+            client.print(F(">+</option></select></div>"));
+            client.print(divClassInput0);
+            client.print(F("T2"));
+            client.print(divClassInput1);
+            client.print(tz[1]);
+            client.println(F("'></div></div>"));
+            client.println(F("<div class='form-row my-2'><input class='btn btn-warning btn-sm' type='submit' value='submit'></div></form>"));
+          }
+
+          //BMBS default internal page: /
+          else
+          {
+            client.println(F("<title>Home</title>"));
+            client.println(F("</head>"));
+            client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>Home Page</strong></h2>"));
+
+            client.println(F("<div class='row my-2'>"));
+            client.println(F("<div class='col-3 bg-secondary'>Network</div>"));
+            client.println(F("<div class='col'></div>"));
+            client.println(F("<div class='col-3 bg-secondary'>NTP / Timezone</div>"));
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-3'>IP: " + ip[0] + "." + ip[1] + "." +  ip[2] + "." +  ip[3] + "</div>");
+            client.println(F("<div class='col'></div>"));
+            client.println((String)"<div class='col-3'>NTP Server IP: " + ntpip[0] + "." +  ntpip[1] + "." +  ntpip[2] + "." +  ntpip[3] + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-3'>Subnet Mask: " + subnet[0] + "." +  subnet[1] + "." +  subnet[2] + "." +  subnet[3] + "</div>");
+            client.println(F("<div class='col'></div>"));
+            client.println((String)"<div class='col-3'>Timezone: " + char(tz[0]) + tz[1] + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-3'>Gateway: " + gateway[0] + "." +  gateway[1] + "." +  gateway[2] + "." +  gateway[3] + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<div class='row my-2'>"));
+            client.println((String)"<div class='col-3'>DNS: " + dns[0] + "." +  dns[1] + "." +  dns[2] + "." +  dns[3] + "</div>");
+            client.println(F("</div>"));
+            client.println(F("<br>"));
+
             client.println(F("<div class='row my-2 bg-secondary'>"));
-            client.println(F("<div class='col-1'><strong>task</strong></div>"));
-            client.println(F("<div class='col-3'><strong>timestamp</strong></div>"));
-            client.println(F("<div class='col-5'><strong>day of week</strong></div>"));
-            client.println(F("<div class='col-2'><strong>action pin | volt</strong></div>"));
-            client.println(F("<div class='col-1'><strong>status</strong></div>"));
+            client.println(F("<div class='col-1'>task</div>"));
+            client.println(F("<div class='col-3'>timestamp</div>"));
+            client.println(F("<div class='col-5'>day of week</div>"));
+            client.println(F("<div class='col-2'>action pin | volt</div>"));
+            client.println(F("<div class='col-1'>status</div>"));
             client.println(F("</div>"));
             client.println(F("<div class='row my-2'>"));
             client.println((String)"<div class='col-1'>" + taskNumberArray[1] + "</div>");
@@ -1036,129 +1177,11 @@ void loop()
             client.println(F("</div>"));
             client.println((String)"<div class='col-2'>" + taskActionPinArray[10] + " | " + char(taskActionVoltArray[10]) + "</div>");
             client.println("<div class='col-1" + sts10 + "</div>");
-            client.println(F("</div><br><br>"));
-            client.println(F("<h5>Edit Task</h5>"));           
-            client.println(F("<form><input type='hidden' name='TS' value='BMB_tsksch'><input type='hidden' name='Y0' value='20'>"));
-            client.println(F("  <div class='row my-2 bg-secondary'>"));
-            client.println(F("      <div class='col-2'>task</div>"));
-            client.println(F("      <div class='col-4'>time (H:M:S)</div>"));
-            client.println(F("      <div class='col-4'>action (pin number / voltage)</div>"));
-            client.println(F("      <div class='col-1'>status</div>"));
-            client.println(F("  </div>"));
-            client.println(F("  <div class='row my-2'>"));
-            client.println(F("      <div class='col-2'>"));
-            client.println(F("          <input class='form-control form-control-sm' type='number' size='2' min='1' max='10' name='TA'>"));
-            client.println(F("      </div>"));
-            client.println(F("      <div class='col-4'>"));
-            client.println(F("          <div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' max='23' name='HO'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='MI'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='SE'></div>"));
-            client.println(F("      </div>"));
-            client.println(F("<div class='col-4'><div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' min='1' max='53' name='PN'> / <select class='form-control form-control-sm col-3'  name='PV'><option value='0' selected>select...</option><option value='72'>switch HIGH (H)</option><option value='76'>switch LOW (L)</option><option value='104'>pulse HIGHLOW (h)</option><option value='108'>pulse LOWHIGH (l)</option></select></div></div>"));
-            client.println(F("      <div class='col-1'>"));
-            client.println(F("          <div class='custom-control custom-switch'>"));
-            client.println(F("              <input type='checkbox' class='custom-control-input' id='sts' name='sts' value='9'><label class='custom-control-label' for='sts'></label>"));
-            client.println(F("          </div>"));
-            client.println(F("      </div>"));
-            client.println(F("  </div>"));
-            client.println(F("  <div class='row my-2 bg-secondary'>"));
-            client.println(F("      <div class='col-4'>date (YY-MM-DD)</div>"));
-            client.println(F("      <div class='col-6 text-nowrap'>day of week</div>"));
-            client.println(F("  </div>"));
-            client.println(F("  <div class='row'>"));
-            client.println(F("      <div class='col-4'>"));
-            client.println(F("          <div class='row'><input class='form-control form-control-sm col-3' type='number' size='2' max='99' name='YE'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='12' name='MO'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='31' name='DA'></div>"));
-            client.println(F("      </div>"));
-            client.println(F("      <div class='col-6 text-wrap'>"));
-            client.println(F("          <div class='row'>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='sun' name='sun' value='1'>"));
-            client.println(F("                  <label class='custom-control-label' for='sun'>S</label>"));
-            client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='mon' name='mon' value='2'>"));
-            client.println(F("                  <label class='custom-control-label' for='mon'>M</label>"));
-            client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='tue' name='tue' value='3'>"));
-            client.println(F("                  <label class='custom-control-label' for='tue'>T</label>"));
-            client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='wed' name='wed' value='4'>"));
-            client.println(F("                  <label class='custom-control-label' for='wed'>W</label>"));
-            client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='thu' name='thu' value='5'>"));
-            client.println(F("                  <label class='custom-control-label' for='thu'>T</label>"));
-            client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='fri' name='fri' value='6'>"));
-            client.println(F("                  <label class='custom-control-label' for='fri'>F</label>"));
-            client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='sat' name='sat' value='7'>"));
-            client.println(F("                  <label class='custom-control-label' for='sat'>S</label>"));
-            client.println(F("              </div>"));
-            client.println(F("          </div>"));
-            client.println(F("      </div>"));
-            client.println(F("      <div class='col-1 text-nowrap'>"));
-            client.println(F("          <input class='btn btn-warning btn-sm' type='submit' value='submit'>"));
-            client.println(F("      </div>"));
-            client.println(F("    </div>"));
-            client.println(F("  </div>"));
-            client.println(F("</form><br>"));
-          }
-
-          //BMBS internal page: /ntpzn
-          //character conversion in https://www.arduino.cc/en/Reference/ASCIIchart
-          else if (HttpHeader[5] == 110 && HttpHeader[6] == 116 && HttpHeader[7] == 112 && HttpHeader[8] == 122 && HttpHeader[9] == 110)
-          {
-            client.println(F("<title>NTP & TimeZone</title>"));
-            client.println(F("</head>"));
-            client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>NTP & TimeZone</strong></h2>"));
-            client.println(F("<form><input type='hidden' name='TZ' value='BMB_timezn'>"));
-            client.print(divRow);
-            client.print(F("NTP IP Address: </div>"));
-            client.print(divClassInput0);
-            client.print(F("N1"));
-            client.print(divClassInput1);
-            client.print(ntpip[0]);
-            client.print(divClassInput2);
-            client.print(divClassInput0);
-            client.print(F("N2"));
-            client.print(divClassInput1);
-            client.print(ntpip[1]);
-            client.print(divClassInput2);
-            client.print(divClassInput0);
-            client.print(F("N3"));
-            client.print(divClassInput1);
-            client.print(ntpip[2]);
-            client.print(divClassInput2);
-            client.print(divClassInput0);
-            client.print(F("N4"));
-            client.print(divClassInput1);
-            client.print(ntpip[3]);
-            client.println(F("'></div></div>"));
-            client.print(divRow);
-            client.print(F("TimeZone: </div>"));
-            client.print(F("<div class='col-1'><select class='form-control form-control-sm'  name='T1'><option value='45'>-</option><option value='43'"));
-            client.print(formSelected);
-            client.print(F(">+</option></select></div>"));
-            client.print(divClassInput0);
-            client.print(F("T2"));
-            client.print(divClassInput1);
-            client.print(tz[1]);
-            client.println(F("'></div></div>"));
-            client.println(F("<div class='form-row my-2'><input class='btn btn-warning btn-sm' type='submit' value='submit'></div></form>"));
-          }
-
-          //BMBS default internal page: /
-          else
-          {
-            client.println(F("<title>Home</title>"));
-            client.println(F("</head>"));
-            client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>Home Page</strong></h2>"));
+            client.println(F("</div><br>"));
           }
           //BMBS web page's footer
           client.println(F("<div class='row justify-content-center'><div><a href='/'>home</a> | <a href='/ipcfg'>IP config</a> | <a href='/ntpzn'>NTP & TimeZone</a> | <a href='/schdl'>task scheduler</a></div></div>"));
+          client.println(F("<div class='row justify-content-center'><div><small><small>Created by Bruno Sá - <a href='//www.bruno-sa.com' target='_blank'>www.bruno-sa.com</a></small></small></div></div>"));
           client.println(F("</div>"));
           client.println(F("<!-- Optional JavaScript -->"));
           client.println(F("<!-- jQuery first, then Popper.js, then Bootstrap JS -->"));
