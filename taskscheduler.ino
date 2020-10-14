@@ -719,12 +719,6 @@ void loop()
           Serial.println(HttpHeader.length());
           Serial.print("HttpHeader: ");
           Serial.println(HttpHeader);
-          Serial.print("HttpHeaderTSK: ");
-          Serial.println(HttpHeaderTSK);
-          Serial.print("dateTimeWeekNow()[20]: ");
-          Serial.println(dateTimeWeekNow()[20]);
-          Serial.print("EEPROM.read(50): ");
-          Serial.println(EEPROM.read(50));
 
           //BMBS web page's header
           client.println(F("HTTP/1.1 200 OK"));
@@ -1095,7 +1089,7 @@ void loop()
             client.println(F("</div>"));
             client.println(F("<div class='row my-2'>"));
             client.println((String)"<div class='col-1'>" + taskNumberArray[6] + "</div>");
-            client.println((String)"<div class='col-3'>" + taskSchedule03Display + "</div>");
+            client.println((String)"<div class='col-3'>" + taskSchedule06Display + "</div>");
             client.println(F("<div class='col-5'>"));
             client.println(F("    <div class='row'>"));
             client.println("        <div class='col" + sun06 + "'>S</div>");
