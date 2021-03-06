@@ -570,7 +570,7 @@ void loop()
           HttpHeaderTSKbyte = HttpHeaderTSK[0];
 
           HttpHeaderNTP = HttpHeader;
-          HttpHeaderNTP.remove(HttpHeader.indexOf("N1=") - 1, HttpHeader.length() - HttpHeader.indexOf("TA="));
+          HttpHeaderNTP.remove(HttpHeader.indexOf("N1=") - 1, HttpHeader.length() - HttpHeader.indexOf("N1="));
           HttpHeaderNTP.remove(0, HttpHeader.indexOf("TZ=") + 3);
           HttpHeaderNTPbyte = HttpHeaderNTP[0];
 
@@ -1179,7 +1179,7 @@ void loop()
           client.println(F("</div>"));
           client.println(F("<!-- Optional JavaScript -->"));
           client.println(F("<!-- jQuery first, then Popper.js, then Bootstrap JS -->"));
-          client.println(F("<script src='https://code.jquery.com/jquery-3.5.1.js' integrity='sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=' crossorigin='anonymous'></script>"));
+          client.println(F("<script src='https://code.jquery.com/jquery-3.6.0.js' integrity='sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=' crossorigin='anonymous'></script>"));
           client.println(F("<script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js' integrity='sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=' crossorigin='anonymous'></script>"));
           client.println(F("<script src='https://cdn.jsdelivr.net/npm/jquery-ui-touch-punch@0.2.3/jquery.ui.touch-punch.js' integrity='sha256-S9605h/+fTHx8kE89v4NQWuTGCEQJF0B9UGvMFYAiO8=' crossorigin='anonymous'></script>"));
           client.println(F("<script src='https://unpkg.com/@popperjs/core@2'></script>"));
