@@ -360,10 +360,10 @@ String statusValue(byte sts){
 
 
 //BMBS /ipcfg repeating HTML codes
-String divRow = "<div class='form-row my-2'><div class='col-md-3 col-xs-12 text-nowrap'>";
-String divClassInput0 = "<div class='col-2'><input class='form-control form-control-sm' type='number' size='3' max='255' name='";
+String divRow = "<div class='col-sm-6 text-nowrap'><div class='input-group mb-2 input-group-sm col-2'><span class='col-3 input-group-text text-nowrap'>";
+String divClassInput0 = "<input class='form-control form-control-sm' type='number' max='255' name='";
 String divClassInput1 = "' value='";
-String divClassInput2 = "'></div>.";
+String divClassInput2 = "'><span class='input-group-text input-group-sm'>.</span>";
 String formSelected = " selected";
 
 //BMBS NTP and timezone infos in EEPROM
@@ -732,7 +732,7 @@ void loop()
           client.println(F("<meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>"));
           client.println(F("<link href='https://fonts.googleapis.com/css?family=Didact Gothic' rel='stylesheet'>"));
           client.println(F("<!-- Bootstrap CSS -->"));
-          client.println(F("<link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css' integrity='sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z' crossorigin='anonymous'>"));
+          client.println(F("<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6' crossorigin='anonymous'>"));
           client.println(F("<!-- jQuery UI CSS -->"));
           client.println(F("<link rel='stylesheet' href='https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css'>"));
 
@@ -755,7 +755,7 @@ void loop()
             client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>IP Config Page</strong></h2>"));
             client.println(F("<form action='/fsend'><input type='hidden' name='CF' value='BMB_ipconf'>"));
             client.print(divRow);
-            client.print(F("IP Address: </div>"));
+            client.print(F("IP Address: </span>"));
             client.print(divClassInput0);
             client.print(F("I1"));
             client.print(divClassInput1);
@@ -777,7 +777,7 @@ void loop()
             client.print(ip[3]);
             client.println(F("'></div></div>"));
             client.print(divRow);
-            client.print(F("Subnet Mask: </div>"));
+            client.print(F("Subnet Mask: </span>"));
             client.print(divClassInput0);
             client.print(F("S1"));
             client.print(divClassInput1);
@@ -799,7 +799,7 @@ void loop()
             client.print(subnet[3]);
             client.println(F("'></div></div>"));
             client.print(divRow);
-            client.print(F("Gateway: </div>"));
+            client.print(F("Gateway: </span>"));
             client.print(divClassInput0);
             client.print(F("G1"));
             client.print(divClassInput1);
@@ -821,7 +821,7 @@ void loop()
             client.print(gateway[3]);
             client.println(F("'></div></div>"));
             client.print(divRow);
-            client.print(F("DNS: </div>"));
+            client.print(F("DNS: </span>"));
             client.print(divClassInput0);
             client.print(F("D1"));
             client.print(divClassInput1);
@@ -865,12 +865,12 @@ void loop()
             client.println(F("          <input class='form-control form-control-sm' type='number' size='2' min='1' max='10' name='TA'>"));
             client.println(F("      </div>"));
             client.println(F("      <div class='col-4'>"));
-            client.println(F("          <div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' max='23' name='HO'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='MI'> : <input class='form-control form-control-sm col-3' type='number' size='2' max='59' name='SE'></div>"));
+            client.println(F("          <div class='input-group mb-2 input-group-sm'><input class='form-control form-control-sm' type='number' size='2' max='23' name='HO'><span class='input-group-text input-group-sm'>:</span><input class='form-control form-control-sm' type='number' size='2' max='59' name='MI'><span class='input-group-text input-group-sm'>:</span> <input class='form-control form-control-sm' type='number' size='2' max='59' name='SE'></div>"));
             client.println(F("      </div>"));
-            client.println(F("<div class='col-4'><div class='row text-nowrap'><input class='form-control form-control-sm col-3' type='number' size='2' min='1' max='53' name='PN'> / <select class='form-control form-control-sm col-3'  name='PV'><option value='0' selected>select...</option><option value='72'>switch HIGH (H)</option><option value='76'>switch LOW (L)</option><option value='104'>pulse HIGHLOW (h)</option><option value='108'>pulse LOWHIGH (l)</option></select></div></div>"));
+            client.println(F("<div class='col-4'><div class='input-group mb-2 input-group-sm'><input class='form-control form-control-sm' type='number' size='2' min='1' max='53' name='PN'><span class='input-group-text input-group-sm'>/</span><select class='form-select form-select-sm'  name='PV'><option value='0' selected>select...</option><option value='72'>switch HIGH (H)</option><option value='76'>switch LOW (L)</option><option value='104'>pulse HIGHLOW (h)</option><option value='108'>pulse LOWHIGH (l)</option></select></div></div>"));
             client.println(F("      <div class='col-1'>"));
-            client.println(F("          <div class='custom-control custom-switch'>"));
-            client.println(F("              <input type='checkbox' class='custom-control-input' id='sts' name='sts' value='9'><label class='custom-control-label' for='sts'></label>"));
+            client.println(F("          <div class='form-check mb-2 form-switch'>"));
+            client.println(F("              <input type='checkbox' class='form-check-input' id='sts' name='sts' value='9'><label class='form-check-label' for='sts'></label>"));
             client.println(F("          </div>"));
             client.println(F("      </div>"));
             client.println(F("  </div>"));
@@ -880,39 +880,37 @@ void loop()
             client.println(F("  </div>"));
             client.println(F("  <div class='row'>"));
             client.println(F("      <div class='col-4'>"));
-            client.println(F("          <div class='row'><input class='form-control form-control-sm col-3' type='number' size='2' max='99' name='YE'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='12' name='MO'> - <input class='form-control form-control-sm col-3' type='number' size='2' max='31' name='DA'></div>"));
+            client.println(F("          <div class='input-group mb-2 input-group-sm'><input class='form-control form-control-sm' type='number' size='2' max='99' name='YE'><span class='input-group-text input-group-sm'>-</span><input class='form-control form-control-sm' type='number' size='2' max='12' name='MO'><span class='input-group-text input-group-sm'>-</span><input class='form-control form-control-sm' type='number' size='2' max='31' name='DA'></div>"));
             client.println(F("      </div>"));
             client.println(F("      <div class='col-6 text-wrap'>"));
-            client.println(F("          <div class='row'>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='sun' name='sun' value='1'>"));
-            client.println(F("                  <label class='custom-control-label' for='sun'>S</label>"));
+            client.println(F("              <div class='form-check form-check-inline'>"));
+            client.println(F("                  <input type='checkbox' class='form-check-input' id='sun' name='sun' value='1'>"));
+            client.println(F("                  <label class='form-check-label' for='sun'>S</label>"));
             client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='mon' name='mon' value='2'>"));
-            client.println(F("                  <label class='custom-control-label' for='mon'>M</label>"));
+            client.println(F("              <div class='form-check form-check-inline'>"));
+            client.println(F("                  <input type='checkbox' class='form-check-input' id='mon' name='mon' value='2'>"));
+            client.println(F("                  <label class='form-check-label' for='mon'>M</label>"));
             client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='tue' name='tue' value='3'>"));
-            client.println(F("                  <label class='custom-control-label' for='tue'>T</label>"));
+            client.println(F("              <div class='form-check form-check-inline'>"));
+            client.println(F("                  <input type='checkbox' class='form-check-input' id='tue' name='tue' value='3'>"));
+            client.println(F("                  <label class='form-check-label' for='tue'>T</label>"));
             client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='wed' name='wed' value='4'>"));
-            client.println(F("                  <label class='custom-control-label' for='wed'>W</label>"));
+            client.println(F("              <div class='form-check form-check-inline'>"));
+            client.println(F("                  <input type='checkbox' class='form-check-input' id='wed' name='wed' value='4'>"));
+            client.println(F("                  <label class='form-check-label' for='wed'>W</label>"));
             client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='thu' name='thu' value='5'>"));
-            client.println(F("                  <label class='custom-control-label' for='thu'>T</label>"));
+            client.println(F("              <div class='form-check form-check-inline'>"));
+            client.println(F("                  <input type='checkbox' class='form-check-input' id='thu' name='thu' value='5'>"));
+            client.println(F("                  <label class='form-check-label' for='thu'>T</label>"));
             client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='fri' name='fri' value='6'>"));
-            client.println(F("                  <label class='custom-control-label' for='fri'>F</label>"));
+            client.println(F("              <div class='form-check form-check-inline'>"));
+            client.println(F("                  <input type='checkbox' class='form-check-input' id='fri' name='fri' value='6'>"));
+            client.println(F("                  <label class='form-check-label' for='fri'>F</label>"));
             client.println(F("              </div>"));
-            client.println(F("              <div class='col custom-control custom-checkbox'>"));
-            client.println(F("                  <input type='checkbox' class='custom-control-input' id='sat' name='sat' value='7'>"));
-            client.println(F("                  <label class='custom-control-label' for='sat'>S</label>"));
+            client.println(F("              <div class='form-check form-check-inline'>"));
+            client.println(F("                  <input type='checkbox' class='form-check-input' id='sat' name='sat' value='7'>"));
+            client.println(F("                  <label class='form-check-label' for='sat'>S</label>"));
             client.println(F("              </div>"));
-            client.println(F("          </div>"));
             client.println(F("      </div>"));
             client.println(F("      <div class='col-1 text-nowrap'>"));
             client.println(F("          <input class='btn btn-warning btn-sm' type='submit' value='submit'>"));
@@ -931,7 +929,7 @@ void loop()
             client.println(F("<body style='font-family:Didact Gothic; color:#FFF; background-color:#333;'><div class='container'><h2><strong>NTP & TimeZone</strong></h2>"));
             client.println(F("<form action='/fsend'><input type='hidden' name='TZ' value='BMB_timezn'>"));
             client.print(divRow);
-            client.print(F("NTP IP Address: </div>"));
+            client.print(F("NTP IP Address: </span>"));
             client.print(divClassInput0);
             client.print(F("N1"));
             client.print(divClassInput1);
@@ -953,10 +951,10 @@ void loop()
             client.print(ntpip[3]);
             client.println(F("'></div></div>"));
             client.print(divRow);
-            client.print(F("TimeZone: </div>"));
-            client.print(F("<div class='col-1'><select class='form-control form-control-sm'  name='T1'><option value='45'>-</option><option value='43'"));
+            client.print(F("TimeZone: </span>"));
+            client.print(F("<select class='form-select form-select-sm' name='T1'><option value='45'>-</option><option value='43'"));
             client.print(formSelected);
-            client.print(F(">+</option></select></div>"));
+            client.print(F(">+</option></select>"));
             client.print(divClassInput0);
             client.print(F("T2"));
             client.print(divClassInput1);
@@ -1174,8 +1172,9 @@ void loop()
             client.println(F("</div><br>"));
           }
           //BMBS web page's footer
-          client.println(F("<div class='row justify-content-center'><div><a href='/'>home</a> | <a href='/ipcfg'>IP config</a> | <a href='/ntpzn'>NTP & TimeZone</a> | <a href='/schdl'>task scheduler</a></div></div>"));
-          client.println(F("<div class='row justify-content-center'><div><small><small>Created by Bruno Sá - <a href='//www.bruno-sa.com' target='_blank'>www.bruno-sa.com</a></small></small></div></div>"));
+          client.println(F("<div class='d-flex justify-content-center'><div><a href='/'>home</a> | <a href='/ipcfg'>IP config</a> | <a href='/ntpzn'>NTP & TimeZone</a> | <a href='/schdl'>task scheduler</a></div></div>"));
+          client.println(F("<hr>"));
+          client.println(F("<div class='d-flex justify-content-center'><div><small><small>Created by Bruno Sá - <a href='//www.bruno-sa.com' target='_blank'>www.bruno-sa.com</a></small></small></div></div>"));
           client.println(F("</div>"));
           client.println(F("<!-- Optional JavaScript -->"));
           client.println(F("<!-- jQuery first, then Popper.js, then Bootstrap JS -->"));
@@ -1183,7 +1182,7 @@ void loop()
           client.println(F("<script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js' integrity='sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=' crossorigin='anonymous'></script>"));
           client.println(F("<script src='https://cdn.jsdelivr.net/npm/jquery-ui-touch-punch@0.2.3/jquery.ui.touch-punch.js' integrity='sha256-S9605h/+fTHx8kE89v4NQWuTGCEQJF0B9UGvMFYAiO8=' crossorigin='anonymous'></script>"));
           client.println(F("<script src='https://unpkg.com/@popperjs/core@2'></script>"));
-          client.println(F("<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js' integrity='sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV' crossorigin='anonymous'></script>"));
+          client.println(F("<script src='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js' integrity='sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc' crossorigin='anonymous'></script>"));
           client.println(F("</body></html>"));
 
           //BMBS checking previous IP config to overwrite
