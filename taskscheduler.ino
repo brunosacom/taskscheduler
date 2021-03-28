@@ -360,7 +360,7 @@ String statusValue(byte sts){
 
 
 //BMBS /ipcfg repeating HTML codes
-String divRow = "<div class='col-sm-6 text-nowrap'><div class='input-group mb-2 input-group-sm col-2'><span class='col-3 input-group-text text-nowrap'>";
+String divRow = "<div class='col-sm-6'><div class='input-group mb-2 input-group-sm col-2'><span class='col-3 input-group-text text-nowrap'>";
 String divClassInput0 = "<input class='form-control form-control-sm' type='number' max='255' name='";
 String divClassInput1 = "' value='";
 String divClassInput2 = "'><span class='input-group-text input-group-sm'>.</span>";
